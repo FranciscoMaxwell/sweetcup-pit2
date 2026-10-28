@@ -1,0 +1,21 @@
+node_modules/
+dist/
+.venv/
+.wrangler/
+__pycache__/
+*.pyc
+*.sqlite*
+.env*
+.dev.vars*
+!.env.example
+tmp/
+*.log
+desktop.ini
+CONVERSA COM O CHAT - PARA TRABALHO DE PIT2/
+FOTOS DO APP/
+TRABALHO DE PIT2/
+PIT_atividade.docx
+PITESoftwareII.pdf
+RESPOSTAS_PIT_ATIVIDADE.txt
+leia-me.txt
+FOTOS DIVIDIDAS AQUI.txt
