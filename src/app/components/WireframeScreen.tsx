@@ -37,8 +37,8 @@ function Img({ h = 40, color = "#F0D8E0" }: { h?: number; color?: string }) {
   );
 }
 
-function Row({ children, gap = 3 }: { children: React.ReactNode; gap?: number }) {
-  return <div style={{ display: "flex", gap, marginBottom: 3 }}>{children}</div>;
+function Row({ children, gap = 3, style = {} }: { children: React.ReactNode; gap?: number; style?: React.CSSProperties }) {
+  return <div style={{ display: "flex", gap, marginBottom: 3, ...style }}>{children}</div>;
 }
 
 export function WireframeScreen({ navigate }: Props) {

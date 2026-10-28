@@ -8,7 +8,7 @@ interface Props {
   cupcakes: Cupcake[];
   cart: CartItem[];
   setCart: (c: CartItem[]) => void;
-  addToCart: (c: Cupcake, q: number) => void;
+  addToCart: (c: Cupcake, q: number) => Promise<boolean>;
   favorites: number[];
   toggleFavorite: (id: number) => void;
   cartCount: number;
@@ -27,8 +27,8 @@ export function ProductScreen({ navigate, cupcake, favorites, toggleFavorite, ad
   const [added, setAdded] = useState(false);
   const isFav = favorites.includes(cupcake.id);
 
-  const handleAdd = () => {
-    addToCart(cupcake, qty);
+  const handleAdd = async () => {
+    if (!await addToCart(cupcake, qty)) return;
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };
@@ -93,7 +93,7 @@ export function ProductScreen({ navigate, cupcake, favorites, toggleFavorite, ad
         </div>
 
         <p style={{ margin: "0 0 4px", color: "#C4A882", fontSize: "13px" }}>
-          ⭐ {cupcake.rating} · {cupcake.reviews} avaliações
+          ⭐ {cupcake.rating} · {cupcake.reviews} avaliações fictícias
         </p>
 
         {/* Price & Quantity */}
@@ -118,7 +118,8 @@ export function ProductScreen({ navigate, cupcake, favorites, toggleFavorite, ad
             </button>
             <span style={{ fontSize: "18px", fontWeight: 700, color: "#2D1B12", minWidth: "24px", textAlign: "center" }}>{qty}</span>
             <button
-              onClick={() => setQty(qty + 1)}
+              onClick={() => setQty(Math.min(20, qty + 1))}
+              disabled={qty >= 20}
               style={{ width: "30px", height: "30px", borderRadius: "50%", border: "none", background: "#E8648C", color: "#fff", fontSize: "18px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700 }}
             >
               +

@@ -1,0 +1,140 @@
+[
+  {
+    "id": 1,
+    "name": "Rose Velvet",
+    "price": 14.9,
+    "description": "Red velvet com cobertura de cream cheese e pétalas de rosa comestíveis. Uma experiência única de sabor e sofisticação.",
+    "image": "https://images.unsplash.com/photo-1723476338868-4488ddc9124a?w=400&q=80",
+    "rating": 4.9,
+    "reviews": 248,
+    "category": "Clássicos",
+    "ingredients": [
+      "Farinha de trigo",
+      "Açúcar refinado",
+      "Manteiga",
+      "Cream cheese",
+      "Extrato de baunilha",
+      "Pétalas de rosa"
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Golden Dream",
+    "price": 16.9,
+    "description": "Baunilha com cobertura de buttercream dourado e folha de ouro comestível. O luxo em cada mordida.",
+    "image": "https://images.unsplash.com/photo-1723638002276-0d2165b07fbc?w=400&q=80",
+    "rating": 4.8,
+    "reviews": 183,
+    "category": "Premium",
+    "ingredients": [
+      "Farinha",
+      "Açúcar",
+      "Baunilha",
+      "Manteiga",
+      "Creme de leite",
+      "Folha de ouro"
+    ]
+  },
+  {
+    "id": 3,
+    "name": "Chocolate Noir",
+    "price": 15.9,
+    "description": "Chocolate belga com ganache escuro e raspas de cacau 70%. Intensidade e sofisticação.",
+    "image": "https://images.unsplash.com/photo-1426869884541-df7117556757?w=400&q=80",
+    "rating": 4.9,
+    "reviews": 312,
+    "category": "Chocolates",
+    "ingredients": [
+      "Cacau belga 70%",
+      "Farinha",
+      "Manteiga",
+      "Açúcar mascavo",
+      "Ganache noir"
+    ]
+  },
+  {
+    "id": 4,
+    "name": "Strawberry Kiss",
+    "price": 13.9,
+    "description": "Morango fresco com chantilly artesanal e frutas frescas. Leveza e frescor.",
+    "image": "https://images.unsplash.com/photo-1519869325930-281384150729?w=400&q=80",
+    "rating": 4.7,
+    "reviews": 196,
+    "category": "Frutas",
+    "ingredients": [
+      "Morango fresco",
+      "Farinha",
+      "Chantilly",
+      "Açúcar",
+      "Essência de baunilha"
+    ]
+  },
+  {
+    "id": 5,
+    "name": "Caramel Bliss",
+    "price": 15.5,
+    "description": "Caramelo salgado com buttercream e flor de sal. Perfeito equilíbrio entre doce e salgado.",
+    "image": "https://images.unsplash.com/photo-1565498253128-c06e0488ddee?w=400&q=80",
+    "rating": 4.8,
+    "reviews": 167,
+    "category": "Especiais",
+    "ingredients": [
+      "Caramelo artesanal",
+      "Flor de sal",
+      "Manteiga",
+      "Farinha",
+      "Açúcar mascavo"
+    ]
+  },
+  {
+    "id": 6,
+    "name": "Lemon Zest",
+    "price": 13.5,
+    "description": "Limão siciliano com merengue italiano flambado. Acidez equilibrada e suavidade.",
+    "image": "https://images.unsplash.com/photo-1572978577765-462b91a7f9e1?w=400&q=80",
+    "rating": 4.6,
+    "reviews": 141,
+    "category": "Frutas",
+    "ingredients": [
+      "Limão siciliano",
+      "Merengue italiano",
+      "Farinha",
+      "Manteiga",
+      "Açúcar"
+    ]
+  },
+  {
+    "id": 7,
+    "name": "Rainbow Sprinkle",
+    "price": 12.9,
+    "description": "Confete colorido com buttercream arco-íris. Alegria e cor em cada detalhe.",
+    "image": "https://images.unsplash.com/photo-1611692276815-cd6efa0b2dac?w=400&q=80",
+    "rating": 4.5,
+    "reviews": 98,
+    "category": "Clássicos",
+    "ingredients": [
+      "Confete colorido",
+      "Buttercream",
+      "Farinha",
+      "Açúcar",
+      "Corantes naturais"
+    ]
+  },
+  {
+    "id": 8,
+    "name": "Pearl Dream",
+    "price": 17.9,
+    "description": "Coco com cobertura branca perolada e cristais de açúcar. Elegância e delicadeza.",
+    "image": "https://images.unsplash.com/photo-1723638002949-9ef46fddc729?w=400&q=80",
+    "rating": 4.9,
+    "reviews": 221,
+    "category": "Premium",
+    "ingredients": [
+      "Coco ralado",
+      "Cream cheese",
+      "Farinha",
+      "Manteiga",
+      "Pérolas de açúcar"
+    ]
+  }
+]

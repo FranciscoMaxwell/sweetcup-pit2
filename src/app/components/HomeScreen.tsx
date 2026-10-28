@@ -75,6 +75,7 @@ export function HomeScreen({ navigate, cupcakes, favorites, toggleFavorite, cart
             <line x1="16.5" y1="16.5" x2="22" y2="22" stroke="#C4A882" strokeWidth="2" strokeLinecap="round" />
           </svg>
           <input
+            aria-label="Buscar cupcakes"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Buscar cupcakes..."
@@ -106,8 +107,8 @@ export function HomeScreen({ navigate, cupcakes, favorites, toggleFavorite, cart
                 <div style={{ background: "rgba(255,255,255,0.25)", borderRadius: "20px", padding: "3px 10px", width: "fit-content", marginBottom: "8px" }}>
                   <span style={{ color: "#fff", fontSize: "11px", fontWeight: 600 }}>🎉 Oferta especial</span>
                 </div>
-                <h3 style={{ color: "#fff", margin: 0, fontWeight: 800, fontSize: "20px", lineHeight: 1.2 }}>30% OFF<br />nos Premium</h3>
-                <p style={{ color: "rgba(255,255,255,0.85)", margin: "6px 0 12px", fontSize: "12px" }}>Hoje somente!</p>
+                <h3 style={{ color: "#fff", margin: 0, fontWeight: 800, fontSize: "20px", lineHeight: 1.2 }}>20% de desconto<br />com PROMO20</h3>
+                <p style={{ color: "rgba(255,255,255,0.85)", margin: "6px 0 12px", fontSize: "12px" }}>Aplique no carrinho · Demonstração</p>
                 <button
                   onClick={() => setActiveCategory("Premium")}
                   style={{
@@ -151,7 +152,7 @@ export function HomeScreen({ navigate, cupcakes, favorites, toggleFavorite, cart
           <div style={{ marginBottom: "16px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 20px 12px" }}>
               <h3 style={{ margin: 0, color: "#2D1B12", fontSize: "17px", fontWeight: 700 }}>Mais Populares</h3>
-              <button style={{ background: "none", border: "none", color: "#E8648C", fontSize: "13px", cursor: "pointer", fontWeight: 600 }}>Ver todos</button>
+              <a href="#catalog-grid" style={{ color: "#ad2857", fontSize: "13px", fontWeight: 600, textDecoration: "none" }}>Ver todos</a>
             </div>
             <div style={{ display: "flex", gap: "14px", overflowX: "auto", padding: "0 20px", scrollbarWidth: "none" }}>
               {popular.map((c) => (
@@ -170,7 +171,7 @@ export function HomeScreen({ navigate, cupcakes, favorites, toggleFavorite, cart
         </div>
 
         {/* Grid */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", padding: "0 20px" }}>
+        <div id="catalog-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", padding: "0 20px" }}>
           {filtered.map((c) => (
             <CupcakeCard key={c.id} cupcake={c} isFav={favorites.includes(c.id)} onToggleFav={() => toggleFavorite(c.id)} onPress={() => onSelect(c)} />
           ))}
