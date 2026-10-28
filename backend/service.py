@@ -68,10 +68,13 @@ class SweetCupService:
 
     async def catalog(self):
         rows = await self.repo.all('SELECT * FROM products ORDER BY id')
+        ingredients = await self.repo.all('SELECT p.product_id,i.name FROM ingredients i JOIN product_ingredients p ON p.ingredient_id=i.id ORDER BY p.product_id,p.position')
+        by_product = {}
+        for ingredient in ingredients:
+            by_product.setdefault(ingredient['product_id'], []).append(ingredient['name'])
         for row in rows:
             row['price'] = row['price_cents'] / 100
-            ingredients = await self.repo.all('SELECT i.name FROM ingredients i JOIN product_ingredients p ON p.ingredient_id=i.id WHERE p.product_id=? ORDER BY p.position', (row['id'],))
-            row['ingredients'] = [ingredient['name'] for ingredient in ingredients]
+            row['ingredients'] = by_product.get(row['id'], [])
         return rows
 
     async def cart(self, uid):
@@ -81,10 +84,15 @@ class SweetCupService:
 
     async def orders(self, uid):
         rows = await self.repo.all('SELECT * FROM orders WHERE user_id=? ORDER BY created_at DESC,id DESC LIMIT 100', (uid,))
+        items = await self.repo.all('SELECT i.* FROM order_items i JOIN (SELECT id FROM orders WHERE user_id=? ORDER BY created_at DESC,id DESC LIMIT 100) o ON o.id=i.order_id ORDER BY i.order_id,i.product_id', (uid,))
+        by_order = {}
+        for item in items:
+            oid = item.pop('order_id')
+            by_order.setdefault(oid, []).append(item)
         for row in rows:
             row.pop('request_key', None)
             row.pop('user_id', None)
-            row['items'] = await self.repo.all('SELECT product_id,product_name,price_cents,quantity FROM order_items WHERE order_id=? ORDER BY product_id', (row['id'],))
+            row['items'] = by_order.get(row['id'], [])
         return rows
 
     async def state(self, user):

@@ -45,7 +45,7 @@ TESTES TÉCNICOS REALIZADOS
 Foram aprovados 25 testes de regras e integração SQLite, 11 verificações HTTP no servidor Python local e 11 no Worker Python com D1 local. TypeScript e build também passaram. No navegador foram verificados catálogo, busca vazia, categoria Frutas, ingredientes, favoritos após recarga, carrinho, cupom, compra, histórico, perfil e formulário de avaliação. As evidências estão na subpasta EVIDENCIAS.
 
 TESTES DA SOLUÇÃO COM CINCO PESSOAS
-Os cinco nomes foram recebidos, mas não foram recebidos relatos confirmados nem o ano/associação das datas. As fichas estão preparadas em TESTES_5_PARTICIPANTES.txt e CINCO_AVALIACOES_PARA_VALIDAR.pdf. Os resultados técnicos acima não foram atribuídos a essas pessoas.
+Os cinco nomes foram recebidos, mas não foram recebidos relatos confirmados nem a associação confirmada das datas de 2026. As fichas estão preparadas em TESTES_5_PARTICIPANTES.txt e CINCO_AVALIACOES_PARA_VALIDAR.pdf. Os resultados técnicos acima não foram atribuídos a essas pessoas.
 
 LAUDO DE QUALIDADE
 A evolução entregou um fluxo funcional de compra demonstrativa. O catálogo vem do banco; carrinho e favoritos persistem; o checkout grava pedido e itens, preserva o desconto e limpa o carrinho. Perfil, histórico e rastreio refletem os dados da sessão. Foram corrigidos o desconto perdido entre carrinho e pagamento, informações fixas de histórico, ausência de gravação de pedidos e conexões SQLite abertas. O servidor trata entradas inválidas e evita duplicação por reenvio.
@@ -58,7 +58,7 @@ Link: {value('video_url', 'PENDENTE: inserir após gravar e publicar.')}
 '''
     (OUT / 'RESPOSTAS_PIT2.txt').write_text(response, encoding='utf-8')
     stages = ['Entrada e navegação básica', 'Catálogo, busca, filtros e produto', 'Carrinho, cupom e checkout', 'Favoritos, perfil e persistência', 'Compra completa, histórico e rastreio']
-    blocks = ['CINCO PARTICIPANTES - FICHAS PARA CONFIRMAÇÃO\nAs datas fornecidas foram 29/08, 09/09, 23/09, 10/10 e 20/10, sem ano e sem associação confirmada. A ordem dos roteiros é uma proposta de cobertura, não uma comprovação de testes passados.\n']
+    blocks = ['CINCO PARTICIPANTES - FICHAS PARA CONFIRMAÇÃO\nAs datas fornecidas foram 29/08, 09/09, 23/09, 10/10 e 20/10, de 2026 e sem associação confirmada. A ordem dos roteiros é uma proposta de cobertura, não uma comprovação de testes passados.\n']
     for i, participant in enumerate(DATA['participants']):
         blocks.append(f'''FICHA {i+1}
 Nome: {participant['name']}
@@ -151,12 +151,14 @@ def docx():
     from docx import Document
     from docx.shared import Pt, RGBColor
     from docx.enum.table import WD_ROW_HEIGHT_RULE
+    from docx.enum.text import WD_ALIGN_PARAGRAPH
+    from docx.oxml import OxmlElement
     doc = Document(OUT / 'PIT_atividade (8).docx')
     for p in doc.paragraphs:
         if p.text.startswith('Nome:'):
-            p.text = 'Nome: ' + value('student_name', 'PENDENTE - informar nome completo')
+            p.text = 'Nome: ' + value('student_name', '________________________________________')
         elif p.text.startswith('RGM:'):
-            p.text = 'RGM: ' + value('rgm', 'PENDENTE - informar RGM')
+            p.text = 'RGM: ' + value('rgm', '________________________________________')
         elif p.text.startswith('Link do repositório:'):
             p.text = 'Link do repositório: ' + value('repository_url', 'PENDENTE - autenticar GitHub para publicação. Documentação pronta em docs/.')
     entries = ['Python', 'SQLite local; Cloudflare D1 testado no ambiente local do Wrangler.', DATA['hosting_status'], 'Web responsiva, com interface mobile no navegador.', '(X) Tradicional\n( ) Low-code\n( ) No-code', value('repository_url', 'PENDENTE - autenticação e publicação no GitHub.'), value('application_url', 'PENDENTE - publicação remota. Local: http://127.0.0.1:8787.'), value('video_url', 'PENDENTE - gravação e publicação pelo aluno.')]
@@ -171,16 +173,24 @@ def docx():
     doc.tables[-1].rows[0].cells[1].text = value('video_url', 'PENDENTE - usar o roteiro de cinco minutos e inserir o link após a gravação.')
     paragraph = next(p for p in doc.paragraphs if p.text.startswith('Insira a seguir o laudo'))
     paragraph.text += '\n\nVerificação técnica: 25 testes automatizados aprovados e 11 verificações HTTP aprovadas em cada ambiente local (Python/SQLite e Worker/D1). Foram corrigidos o desconto perdido no checkout, a ausência de gravação do pedido e os dados fixos de perfil/histórico. Carrinho, favoritos, pedidos e status persistem no banco. Permanecem como limitações a sessão sem recuperação, imagens externas e pagamentos/entregas simulados. Os cinco feedbacks humanos e a publicação remota ainda dependem de confirmação.\n\nEvidências e detalhes: LAUDO_QUALIDADE_E_EVIDENCIAS.pdf e pasta EVIDENCIAS.'
+    paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    for p in doc.paragraphs:
+        if p.text.startswith(('Vídeo da Solução', 'Após levantar os feedbacks')):
+            p.paragraph_format.keep_with_next = True
     for table in doc.tables:
         for row in table.rows:
             row.height_rule = WD_ROW_HEIGHT_RULE.AT_LEAST
             row.height = None
+            row._tr.get_or_add_trPr().append(OxmlElement('w:cantSplit'))
             for cell in row.cells:
                 for p in cell.paragraphs:
                     p.paragraph_format.space_after = Pt(5)
+                    p.paragraph_format.keep_with_next = True
+                    p.paragraph_format.keep_together = True
                     for run in p.runs:
                         run.font.size = Pt(11)
                         run.font.color.rgb = RGBColor(0, 0, 0)
+        table.rows[-1].cells[-1].paragraphs[-1].paragraph_format.keep_with_next = False
     doc.save(OUT / 'PIT2_ATIVIDADE_PREENCHIDA.docx')
     print('DOCX preenchido; pendências externas identificadas.')
 
@@ -253,10 +263,10 @@ def pdfs():
     for i, person in enumerate(DATA['participants']):
         if i:
             forms.append(PageBreak())
-        forms += [p('Avaliação ' + str(i + 1) + ' de 5', 'Title'), p('Ficha para confirmação pelo participante', 'Heading1'), p('<b>Nome:</b> ' + html.escape(person['name'])), p('<b>Data completa:</b> ' + html.escape(person['confirmed_date'] or 'A confirmar. Ano e associação das datas não informados.')), p('<b>Estado:</b> ' + ('Relatos informados; confirmar autoria e evidências.' if person['worked'] else 'Pendente de relato real. Esta ficha não comprova um teste já realizado.')), p('<b>Roteiro sugerido:</b> ' + stages[i])]
+        forms += [p('Avaliação ' + str(i + 1) + ' de 5', 'Title'), p('Ficha para confirmação pelo participante', 'Heading1'), p('<b>Nome:</b> ' + html.escape(person['name'])), p('<b>Data completa:</b> ' + html.escape(person['confirmed_date'] or 'A confirmar. Datas de 2026; associação ao participante a confirmar.')), p('<b>Estado:</b> ' + ('Relatos informados; confirmar autoria e evidências.' if person['worked'] else 'Pendente de relato real. Esta ficha não comprova um teste já realizado.')), p('<b>Roteiro sugerido:</b> ' + stages[i])]
         for key, heading in [('worked', 'O que testou e funcionou'), ('failed', 'O que testou e não funcionou - o que deve ser corrigido'), ('untested', 'Funcionalidade não testada e motivo')]:
             forms += [p(heading, 'Heading2'), p(html.escape(person[key] or 'Aguardando o relato confirmado do participante.')), Spacer(1, 32)]
-        forms += [p('Evidências e confirmação', 'Heading2'), p('Anexar prints dos problemas e o arquivo exportado pelo formulário. Confirmar nome, data e conteúdo antes da consolidação da entrega.'), p('As datas recebidas foram 29/08, 09/09, 23/09, 10/10 e 20/10, sem ano. A sequência de roteiros é planejamento, sem atribuição de resultados passados.', 'SmallText')]
+        forms += [p('Evidências e confirmação', 'Heading2'), p('Anexar prints dos problemas e o arquivo exportado pelo formulário. Confirmar nome, data e conteúdo antes da consolidação da entrega.'), p('As datas recebidas foram 29/08, 09/09, 23/09, 10/10 e 20/10, todas de 2026. A sequência de roteiros é planejamento, sem atribuição de resultados passados.', 'SmallText')]
     SimpleDocTemplate(str(OUT / 'CINCO_AVALIACOES_PARA_VALIDAR.pdf'), pagesize=A4, rightMargin=48, leftMargin=48, topMargin=45, bottomMargin=48).build(forms, onFirstPage=footer, onLaterPages=footer)
     print('Dois PDFs gerados: laudo técnico e cinco fichas com pendências explícitas.')
 
