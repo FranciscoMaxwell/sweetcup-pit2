@@ -46,6 +46,6 @@ Todas as colunas são NOT NULL, salvo se o SQL indicar o contrário; neste esque
 
 Consultas usam parâmetros, sem concatenar entradas do usuário. `SQLiteRepository.batch` usa uma transação e fecha as conexões explicitamente. `D1Repository.batch` usa o lote transacional do D1. O checkout só insere o pedido se a versão do carrinho ainda corresponde à versão conferida, e os comandos seguintes dependem da existência desse pedido.
 
-No servidor local, o arquivo fica em `data/sweetcup.sqlite3`, fora do repositório. `SWEETCUP_DB` permite escolher outro arquivo. No D1, o identificador deve ser preenchido em `wrangler.jsonc` depois de criar o recurso. O valor de exemplo no arquivo não identifica um banco publicado.
+No servidor local, o arquivo fica em `data/sweetcup.sqlite3`, fora do repositório. `SWEETCUP_DB` permite escolher outro arquivo. No D1, o identificador deve ser preenchido em `wrangler.jsonc` depois de criar o recurso. O identificador atual corresponde ao banco publicado da SweetCup; para outra conta, crie outro recurso.
 
 Os limites de tamanho de nome/endereço/relatos e a validação de data são também aplicados no serviço Python. O esquema não deve ser usado como substituto dessa camada de validação.

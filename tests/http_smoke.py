@@ -15,7 +15,7 @@ checks = []
 
 def call(path, method='GET', body=None):
     raw = json.dumps(body).encode() if body is not None else None
-    req = urllib.request.Request(base + '/api' + path, data=raw, method=method, headers={'Content-Type': 'application/json', 'Origin': base})
+    req = urllib.request.Request(base + '/api' + path, data=raw, method=method, headers={'Content-Type': 'application/json', 'Origin': base, 'User-Agent': 'SweetCup-PIT2-Test/1.0'})
     with client.open(req, timeout=45) as response:
         return json.load(response)
 

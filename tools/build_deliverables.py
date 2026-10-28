@@ -27,7 +27,7 @@ Nome: {value('student_name', 'PENDENTE: informar nome completo do aluno')}
 RGM: {value('rgm', 'PENDENTE: informar RGM')}
 
 DOCUMENTAÇÃO
-O projeto SweetCup do PIT I foi evoluído de protótipo para uma aplicação web demonstrativa com interface mobile. Foram atualizados escopo, requisitos, modelagem UML, navegação, modelo relacional, banco físico, dicionário de dados e manual. O código e a documentação técnica estão organizados em Git local, preservando o protótipo em um commit anterior.
+O projeto SweetCup do PIT I foi evoluído de protótipo para uma aplicação web demonstrativa com interface mobile. Foram atualizados escopo, requisitos, modelagem UML, navegação, modelo relacional, banco físico, dicionário de dados e manual. O código e a documentação técnica estão publicados no GitHub, preservando o protótipo em um commit anterior.
 Link do repositório: {value('repository_url', 'PENDENTE: autenticar GitHub e publicar o repositório.')}
 
 CODIFICAÇÃO
@@ -145,6 +145,12 @@ O endereço 127.0.0.1 só funciona neste computador e não substitui o link púb
 
 Os cinco depoimentos não foram inventados. O PDF das fichas tem marcação de pendência e só deve virar entrega final após a validação.
 ''', encoding='utf-8')
+    intro = OUT / 'LEIA_PRIMEIRO.txt'
+    intro.write_text(intro.read_text(encoding='utf-8').replace('Git local e código empacotável', 'Git local, repositório GitHub publicado e código empacotado').replace('autenticação para publicar no GitHub/Cloudflare', 'autenticação para concluir a publicação na Cloudflare') + '\nLINKS\nGitHub: ' + value('repository_url', 'Pendente') + '\nAplicação: ' + value('application_url', 'Publicação remota pendente') + '\n', encoding='utf-8')
+    if DATA.get('application_url'):
+        response_path = OUT / 'RESPOSTAS_PIT2.txt'
+        response_path.write_text(response_path.read_text(encoding='utf-8').replace('A aprovação técnica foi local; a publicação remota, os cinco feedbacks e o vídeo permanecem pendentes.', 'A aplicação também foi publicada e seu contrato HTTP foi verificado no endereço público. Os cinco feedbacks e o vídeo permanecem pendentes.'), encoding='utf-8')
+        intro.write_text(intro.read_text(encoding='utf-8').replace('autenticação para concluir a publicação na Cloudflare; ', '').replace('A chave Cloudflare disponível foi verificada, mas não permite Workers/D1. Nenhuma publicação remota foi confirmada.', 'A aplicação está publicada na Cloudflare e foi verificada por HTTP. O link público está abaixo.'), encoding='utf-8')
 
 
 def docx():
@@ -153,7 +159,25 @@ def docx():
     from docx.enum.table import WD_ROW_HEIGHT_RULE
     from docx.enum.text import WD_ALIGN_PARAGRAPH
     from docx.oxml import OxmlElement
+    from docx.oxml.ns import qn
+    from docx.opc.constants import RELATIONSHIP_TYPE as RT
     doc = Document(OUT / 'PIT_atividade (8).docx')
+
+    def hyperlink(paragraph, url):
+        relation = paragraph.part.relate_to(url, RT.HYPERLINK, is_external=True)
+        element = OxmlElement('w:hyperlink')
+        element.set(qn('r:id'), relation)
+        run = OxmlElement('w:r')
+        props = OxmlElement('w:rPr')
+        color = OxmlElement('w:color')
+        color.set(qn('w:val'), '0563C1')
+        props.append(color)
+        run.append(props)
+        content = OxmlElement('w:t')
+        content.text = url
+        run.append(content)
+        element.append(run)
+        paragraph._p.append(element)
     for p in doc.paragraphs:
         if p.text.startswith('Nome:'):
             p.text = 'Nome: ' + value('student_name', '________________________________________')
@@ -161,9 +185,17 @@ def docx():
             p.text = 'RGM: ' + value('rgm', '________________________________________')
         elif p.text.startswith('Link do repositório:'):
             p.text = 'Link do repositório: ' + value('repository_url', 'PENDENTE - autenticar GitHub para publicação. Documentação pronta em docs/.')
-    entries = ['Python', 'SQLite local; Cloudflare D1 testado no ambiente local do Wrangler.', DATA['hosting_status'], 'Web responsiva, com interface mobile no navegador.', '(X) Tradicional\n( ) Low-code\n( ) No-code', value('repository_url', 'PENDENTE - autenticação e publicação no GitHub.'), value('application_url', 'PENDENTE - publicação remota. Local: http://127.0.0.1:8787.'), value('video_url', 'PENDENTE - gravação e publicação pelo aluno.')]
+            if DATA.get('repository_url'):
+                p.text = 'Link do repositório: '
+                hyperlink(p, DATA['repository_url'])
+    entries = ['Python', 'SQLite local e Cloudflare D1 na aplicação publicada.', DATA['hosting_status'], 'Web responsiva, com interface mobile no navegador.', '(X) Tradicional\n( ) Low-code\n( ) No-code', value('repository_url', 'PENDENTE - autenticação e publicação no GitHub.'), value('application_url', 'PENDENTE - publicação remota. Local: http://127.0.0.1:8787.'), value('video_url', 'PENDENTE - gravação e publicação pelo aluno.')]
     for row, content in zip(doc.tables[0].rows, entries):
         row.cells[1].text = content
+    for index, key in [(5, 'repository_url'), (6, 'application_url'), (7, 'video_url')]:
+        if DATA.get(key):
+            p = doc.tables[0].rows[index].cells[1].paragraphs[0]
+            p.text = ''
+            hyperlink(p, DATA[key])
     for i, person in enumerate(DATA['participants']):
         table = doc.tables[i + 1]
         table.rows[0].cells[0].text = 'Nome: ' + person['name'] + '\nAvaliação humana pendente de confirmação.'
@@ -174,6 +206,8 @@ def docx():
     paragraph = next(p for p in doc.paragraphs if p.text.startswith('Insira a seguir o laudo'))
     paragraph.text += '\n\nVerificação técnica: 25 testes automatizados aprovados e 11 verificações HTTP aprovadas em cada ambiente local (Python/SQLite e Worker/D1). Foram corrigidos o desconto perdido no checkout, a ausência de gravação do pedido e os dados fixos de perfil/histórico. Carrinho, favoritos, pedidos e status persistem no banco. Permanecem como limitações a sessão sem recuperação, imagens externas e pagamentos/entregas simulados. Os cinco feedbacks humanos e a publicação remota ainda dependem de confirmação.\n\nEvidências e detalhes: LAUDO_QUALIDADE_E_EVIDENCIAS.pdf e pasta EVIDENCIAS.'
     paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    if DATA.get('application_url'):
+        paragraph.text = paragraph.text.replace('Os cinco feedbacks humanos e a publicação remota ainda dependem de confirmação.', 'A aplicação está publicada e foi verificada por HTTP. Os cinco feedbacks humanos ainda dependem de confirmação.')
     for p in doc.paragraphs:
         if p.text.startswith(('Vídeo da Solução', 'Após levantar os feedbacks')):
             p.paragraph_format.keep_with_next = True
@@ -238,25 +272,49 @@ def pdfs():
         result.setStyle(TableStyle([('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#e8e8e8')), ('GRID', (0, 0), (-1, -1), .4, colors.HexColor('#d9d9d9')), ('VALIGN', (0, 0), (-1, -1), 'TOP'), ('LEFTPADDING', (0, 0), (-1, -1), 9), ('RIGHTPADDING', (0, 0), (-1, -1), 9), ('TOPPADDING', (0, 0), (-1, -1), 9), ('BOTTOMPADDING', (0, 0), (-1, -1), 7)]))
         return result
 
+    def link(key, pending):
+        url = DATA.get(key)
+        return ('<link href="' + html.escape(url, quote=True) + '">' + html.escape(url) + '</link>') if url else html.escape(pending)
+
     def screenshot(filename, caption):
         path = OUT / 'EVIDENCIAS' / filename
         if path.exists():
             from PIL import Image as PILImage
+            from io import BytesIO
             with PILImage.open(path) as im:
+                if im.width >= 1000 and im.height <= 800:
+                    im = im.crop(((im.width - 440) // 2, 0, (im.width + 440) // 2, im.height))
                 image_width, image_height = im.size
-            scale = min(available / image_width, 260 / image_height)
-            return [Image(str(path), width=image_width * scale, height=image_height * scale), Spacer(1, 5), p(caption, 'SmallText'), Spacer(1, 9)]
+                source = BytesIO()
+                im.save(source, format='PNG')
+                source.seek(0)
+            scale = min((available / 2 - 16) / image_width, 410 / image_height)
+            return [Image(source, width=image_width * scale, height=image_height * scale), Spacer(1, 7), p(caption, 'SmallText')]
         return [p('Evidência pendente: ' + html.escape(filename))]
 
-    story = [p('SweetCup', 'Title'), p('Laudo de qualidade e evidências técnicas', 'Heading1'), p('Continuação do Projeto Integrador Transdisciplinar em Engenharia de Software I. Versão demonstrativa verificada em 28/10/2026.'), p('Resultado da verificação', 'Heading2'), p('A aplicação evoluiu do protótipo visual para uma loja demonstrativa com React/Vite, serviço Python e banco relacional. O fluxo registra pedidos reais no banco, com pagamentos e entregas explicitamente simulados.'), table([['Verificação', 'Resultado'], ['Regras e integração SQLite', '25 testes aprovados'], ['Contrato HTTP: Python local', '11 verificações aprovadas'], ['Contrato HTTP: Worker Python + D1 local', '11 verificações aprovadas'], ['Front-end', 'TypeScript e build aprovados; interações verificadas no navegador'], ['Avaliação humana e publicação', 'Pendentes de confirmação/acesso; não incluídas como testes aprovados']], [available * .50, available * .50]), Spacer(1, 14), p('Base da conclusão', 'Heading2'), p('A aprovação refere-se aos cenários executados em ambiente local. Relatórios detalhados e capturas acompanham a entrega. Os registros de verificação técnica não são depoimentos atribuídos aos cinco colegas.'), p('O escopo exclui pagamentos bancários, entrega física, estoque comercial e recuperação de conta. O ambiente foi construído para demonstração acadêmica.'), PageBreak()]
+    story = [p('SweetCup', 'Title'), p('Laudo de qualidade e evidências técnicas', 'Heading1'), p('Continuação do Projeto Integrador Transdisciplinar em Engenharia de Software I. Versão demonstrativa verificada em 28/10/2026.'), p('Resultado da verificação', 'Heading2'), p('A aplicação evoluiu do protótipo visual para uma loja demonstrativa com React/Vite, serviço Python e banco relacional. O fluxo registra pedidos reais no banco, com pagamentos e entregas explicitamente simulados.'), table([['Verificação', 'Resultado'], ['Regras e integração SQLite', '25 testes aprovados'], ['Contrato HTTP: Python local', '11 verificações aprovadas'], ['Contrato HTTP: Worker Python + D1 local', '11 verificações aprovadas'], *([['Contrato HTTP: aplicação pública', '11 verificações aprovadas']] if DATA.get('application_url') else []), ['Front-end', 'TypeScript e build aprovados; interações verificadas no navegador local'], ['Avaliação humana', 'Pendente de cinco relatos confirmados'], ['Publicação', DATA['hosting_status']]], [available * .50, available * .50]), Spacer(1, 14), p('Base da conclusão', 'Heading2'), p('A aprovação refere-se aos cenários executados em ambiente local. Relatórios detalhados e capturas acompanham a entrega. Os registros de verificação técnica não são depoimentos atribuídos aos cinco colegas.'), p('O escopo exclui pagamentos bancários, entrega física, estoque comercial e recuperação de conta. O ambiente foi construído para demonstração acadêmica.'), PageBreak()]
     story += [p('Correções e limitações', 'Heading1'), table([['Achado', 'Correção e resultado'], ['Desconto perdido no pagamento', 'Carrinho, checkout e pedido usam os mesmos valores calculados pelo servidor.'], ['Pedido não era gravado', 'Checkout salva pedido/itens em lote atômico e limpa o carrinho.'], ['Dados se perdiam na recarga', 'Carrinho, favoritos, perfil e pedidos são persistidos por sessão.'], ['Perfil, histórico e rastreio fixos', 'Telas consultam os dados da sessão e do pedido selecionado.'], ['Reenvio de compra', 'Chave única de requisição retorna o pedido já criado.'], ['Conexões SQLite abertas no Windows', 'Conexões são fechadas explicitamente; testes concluídos e bancos temporários liberados.'], ['Sessão no Worker HTTP local', 'Cookie Secure aplicado em HTTPS; verificação HTTP local aprovada.']], [available * .38, available * .62]), Spacer(1, 14), p('Limitações remanescentes', 'Heading2'), p('A sessão de demonstração não possui recuperação. Imagens dependem de serviço externo. O histórico lista até 100 pedidos por sessão. Pagamento e entrega são simulados; estoque e painel administrativo estão fora do escopo. A interface herdada pode receber auditoria específica de acessibilidade.'), p('Os textos de feedback ficam no banco; os anexos são incluídos no arquivo exportado pelo participante. A coleta e confirmação das cinco avaliações ainda precisam ser concluídas.'), PageBreak()]
     story += [p('Evidência: cupom preservado', 'Heading1'), p('Cenário observado: duas unidades de Rose Velvet, subtotal R$ 29,80, desconto SWEET10 de R$ 2,98 e entrega de R$ 8,90. Total confirmado no navegador e no banco: R$ 35,72.')]
-    story += screenshot('03_carrinho_cupom.jpg', 'Figura 1. Carrinho com o cupom aplicado. Captura da verificação técnica local.')
-    story += screenshot('04_checkout_cupom.jpg', 'Figura 2. Checkout mantém o cupom. Os valores completos foram conferidos na interface e no teste HTTP.')
+    story += [Table([[screenshot('03_carrinho_cupom.jpg', 'Figura 1. Carrinho com cupom aplicado. Recorte da captura técnica local.'), screenshot('04_checkout_cupom.jpg', 'Figura 2. Checkout mantém o cupom. Total conferido na interface e no teste HTTP.')]], colWidths=[available / 2, available / 2], hAlign='LEFT', style=TableStyle([('VALIGN',(0,0),(-1,-1),'TOP')]))]
     story += [PageBreak(), p('Evidência: pedido e persistência', 'Heading1'), p('A confirmação gerou pedido com itens e total. O avanço de status foi salvo; a recarga manteve o histórico e o favorito. O perfil editado também foi confirmado na interface.')]
-    story += screenshot('05_pedido_rastreio.jpg', 'Figura 3. Pedido salvo e acompanhamento demonstrativo.')
-    story += screenshot('07_favorito_persistido.jpg', 'Figura 4. Favorito recuperado após recarregar a aplicação.')
-    story += [PageBreak(), p('Entrega e próximos registros', 'Heading1'), p('Materiais técnicos concluídos', 'Heading2'), p('Código React/Python; esquema e seed SQL; modelagem UML e relacional; dicionário; manual; testes; formulário de avaliação; fichas dos participantes e roteiro de vídeo. A documentação técnica está em docs/ e o código está versionado em Git local.'), p('Dependências para a entrega acadêmica final', 'Heading2'), p('Informar nome e RGM do aluno. Autenticar GitHub/Cloudflare para publicar e verificar os links. Receber os cinco relatos confirmados com datas completas e evidências. Gravar e publicar o vídeo narrado pelo aluno.'), p('Estado dos links', 'Heading2'), p('Aplicação: ' + html.escape(value('application_url', 'publicação remota pendente; teste local em http://127.0.0.1:8787.'))), p('Repositório: ' + html.escape(value('repository_url', 'publicação GitHub pendente de autenticação.'))), p('Vídeo: ' + html.escape(value('video_url', 'pendente de gravação pelo aluno.'))), p('Referências de verificação', 'Heading2'), p('Material da disciplina: PITESoftwareII.pdf, páginas 30 a 40, e formulário PIT_atividade (8).docx. Implementação: backend/service.py, backend/repository.py, database/001_schema.sql e telas React. Execuções: RESULTADO_TESTES_BACKEND.txt e RESULTADO_HTTP_LOCAL.json / RESULTADO_HTTP_WORKER.json.'), p('Documentação oficial consultada: Cloudflare, Query D1 from Python Workers; Python Workers; Wrangler e Static Assets. As configurações foram verificadas no ambiente local do Wrangler.'), p('Conclusão', 'Heading2'), p('A versão demonstrativa atende aos cenários técnicos executados. O laudo registra as correções e os limites observados; não declara como realizados a publicação remota, os cinco testes humanos ou o vídeo pendentes.')]
+    story += [Table([[screenshot('05_pedido_rastreio.jpg', 'Figura 3. Pedido salvo e acompanhamento demonstrativo.'), screenshot('07_favorito_persistido.jpg', 'Figura 4. Favorito recuperado após recarregar.')]], colWidths=[available / 2, available / 2], hAlign='LEFT', style=TableStyle([('VALIGN',(0,0),(-1,-1),'TOP')]))]
+    story += [PageBreak(), p('Entrega e próximos registros', 'Heading1'), p('Materiais técnicos concluídos', 'Heading2'), p('Código React/Python; esquema e seed SQL; modelagem UML e relacional; dicionário; manual; testes; formulário de avaliação; fichas dos participantes e roteiro de vídeo. A documentação técnica está em docs/ e o código está publicado no GitHub.'), p('Dependências para a entrega acadêmica final', 'Heading2'), p('O aluno preencherá nome e RGM. Verificar os links públicos após a publicação na Cloudflare. Receber os cinco relatos confirmados com datas completas e evidências. Gravar e publicar o vídeo narrado pelo aluno.'), p('Estado dos links', 'Heading2'), p('Aplicação: ' + link('application_url', 'publicação remota pendente; teste local em http://127.0.0.1:8787.')), p('Repositório: ' + link('repository_url', 'publicação GitHub pendente de autenticação.')), p('Vídeo: ' + html.escape(value('video_url', 'pendente de gravação pelo aluno.'))), p('Referências de verificação', 'Heading2'), p('Material da disciplina: PITESoftwareII.pdf, páginas 30 a 40, e formulário PIT_atividade (8).docx. Implementação: backend/service.py, backend/repository.py, database/001_schema.sql e telas React. Execuções: RESULTADO_TESTES_BACKEND.txt e RESULTADO_HTTP_LOCAL.json / RESULTADO_HTTP_WORKER.json.'), p('Documentação oficial consultada: Cloudflare, Query D1 from Python Workers; Python Workers; Wrangler e Static Assets. As configurações foram verificadas no ambiente local do Wrangler.'), p('Conclusão', 'Heading2'), p('A versão demonstrativa atende aos cenários técnicos executados. O laudo registra as correções e os limites observados; não declara como realizados a publicação remota, os cinco testes humanos ou o vídeo pendentes.')]
+    if DATA.get('application_url'):
+        replacements = {
+            'A aprovação refere-se aos cenários executados em ambiente local.': 'A aprovação inclui os cenários locais e 11 verificações HTTP da aplicação pública.',
+            'O aluno preencherá nome e RGM. Verificar os links públicos após a publicação na Cloudflare.': 'O aluno preencherá nome e RGM. Os links de aplicação e repositório estão publicados e verificados.',
+            'O laudo registra as correções e os limites observados; não declara como realizados a publicação remota, os cinco testes humanos ou o vídeo pendentes.': 'O laudo registra as correções e os limites observados. A publicação foi verificada por HTTP; os cinco testes humanos e o vídeo permanecem pendentes.',
+        }
+        revised = []
+        for flowable in story:
+            if isinstance(flowable, Paragraph):
+                content = flowable.text
+                for old, new in replacements.items():
+                    content = content.replace(old, new)
+                flowable = Paragraph(content, flowable.style)
+            revised.append(flowable)
+        story = revised
+        story.append(p('Limite de verificação visual: o site público foi testado por HTTP. A revisão visual foi realizada no ambiente local; o controle do navegador público foi interrompido por não conseguir identificar a URL com segurança.', 'SmallText'))
     SimpleDocTemplate(str(OUT / 'LAUDO_QUALIDADE_E_EVIDENCIAS.pdf'), pagesize=A4, rightMargin=48, leftMargin=48, topMargin=45, bottomMargin=48).build(story, onFirstPage=footer, onLaterPages=footer)
     forms = []
     stages = ['Entrada e navegação', 'Catálogo e produto', 'Carrinho e checkout', 'Favoritos, perfil e persistência', 'Compra completa e acompanhamento']

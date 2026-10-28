@@ -3,6 +3,8 @@
 
 Loja acadêmica de cupcakes com interface mobile React/Vite, back-end Python e banco relacional. Evolução do protótipo do PIT I. Compras, pagamentos, avaliações de produtos e entregas são demonstrativos.
 
+Aplicação publicada: [sweetcup.modern-believer.com](https://sweetcup.modern-believer.com). Consulte também [publicação e verificação](docs/07_publicacao.md).
+
 ## Executar
 
 ```powershell
@@ -40,6 +42,6 @@ Os testes técnicos não representam avaliações dos cinco colegas. As avaliaç
 
 ## Cloudflare
 
-O Worker Python e o D1 podem ser executados com `npm run db:local` e `npm run dev:cloudflare`. Para publicar, é necessário autenticar a conta, criar o D1 e preencher seu identificador em `wrangler.jsonc`. O valor de exemplo não identifica um banco remoto. Veja o manual antes de publicar.
+O Worker Python e o D1 podem ser executados com `npm run db:local` e `npm run dev:cloudflare`. Para publicar, é necessário autenticar a conta, criar o D1 e preencher seu identificador em `wrangler.jsonc`. O identificador atual corresponde ao banco da demonstração; para usar outra conta, crie seu próprio banco. Veja o manual antes de publicar.
 
 Design original: [SweetCup no Figma](https://www.figma.com/design/6MG9pEsjSXgevw0vehVpz3/SweetCup-mobile-app-design). O histórico Git preserva a versão anterior à evolução do PIT II.

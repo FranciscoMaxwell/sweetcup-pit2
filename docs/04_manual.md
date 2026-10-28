@@ -64,7 +64,7 @@ npx wrangler d1 execute sweetcup-pit2 --remote --file=database/002_seed.sql
 npm run deploy:cloudflare
 ```
 
-Configure o subdomínio desejado como Custom Domain do Worker no domínio da sua conta. O domínio, Workers e D1 precisam estar acessíveis pela credencial utilizada. O token local verificado durante o trabalho não tinha essas permissões. Nenhuma chave deve entrar no código ou no Git.
+Configure o subdomínio desejado como Custom Domain do Worker no domínio da sua conta. O domínio, Workers e D1 precisam estar acessíveis pela credencial utilizada. A conta foi autorizada para a publicação da SweetCup. Nenhuma chave deve entrar no código ou no Git.
 
 O arquivo de configuração inclui `disable_python_external_sdk` para usar o SDK interno compatível com o código sem instalar pacotes Python externos. Essa configuração foi executada no Wrangler local; o status da publicação remota deve ser verificado separadamente.
 

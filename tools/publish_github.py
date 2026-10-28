@@ -39,4 +39,7 @@ print(repo['html_url'])
 config = root / 'TRABALHO DE PIT2' / 'DADOS_ENTREGA.json'
 data = json.loads(config.read_text(encoding='utf-8'))
 data['repository_url'] = repo['html_url']
+if data.get('application_url'):
+    api('/repos/' + user['login'] + '/' + name, 'PATCH', {'homepage': data['application_url']})
+    print('Link da aplicação atualizado na página do repositório.')
 config.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
