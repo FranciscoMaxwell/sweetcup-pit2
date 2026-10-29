@@ -13,19 +13,19 @@ def build_video_script(root: Path, data: dict) -> str:
     refs = {
         'viewport': ref('index.html', 'name="viewport"'),
         'frame': ref('src/app/App.tsx', 'return <main className="app-shell"'),
-        'size': ref('src/styles/pit2.css', '.phone{'),
-        'mobile': ref('src/styles/pit2.css', '@media(max-width:440px)'),
-        'height': ref('src/styles/pit2.css', '.app-shell{'),
-        'scroll': ref('src/styles/pit2.css', '.phone-content{'),
-        'box': ref('src/styles/pit2.css', 'box-sizing:border-box'),
+        'size': ref('src/styles/pit2.css', '.phone {'),
+        'mobile': ref('src/styles/pit2.css', '@media (max-width: 440px)'),
+        'height': ref('src/styles/pit2.css', '.app-shell {'),
+        'scroll': ref('src/styles/pit2.css', '.phone-content {'),
+        'box': ref('src/styles/pit2.css', 'box-sizing: border-box'),
         'grid': ref('src/app/components/HomeScreen.tsx', 'gridTemplateColumns: "1fr 1fr"'),
         'categories': ref('src/app/components/HomeScreen.tsx', 'gap: "8px", overflowX: "auto"'),
         'image': ref('src/app/components/HomeScreen.tsx', '<img src={cupcake.image}'),
         'nav': ref('src/app/components/BottomNav.tsx', 'position: "sticky"'),
         'profile': ref('src/app/components/AccountScreen.tsx', 'className="account-hero"'),
         'save': ref('src/app/components/AccountScreen.tsx', 'async function save('),
-        'small': ref('src/styles/profile.css', '@media(max-width:350px)'),
-        'stats': ref('src/styles/profile.css', '.account-stats{'),
+        'small': ref('src/styles/profile.css', '@media (max-width: 350px)'),
+        'stats': ref('src/styles/profile.css', '.account-stats {'),
         'coupon': ref('backend/service.py', 'def totals('),
         'checkout': ref('backend/service.py', 'async def checkout('),
         'schema': ref('database/001_schema.sql', 'CREATE TABLE IF NOT EXISTS orders'),
@@ -40,7 +40,15 @@ Pasta-base de TODOS os arquivos citados: {root}
 
 COMO USAR
 As falas entre aspas são para narrar. As indicações MOSTRAR e CÓDIGO orientam a gravação e não precisam ser lidas. Ensaiar com cronômetro: cinco minutos é a meta de edição, não uma duração garantida de leitura. O material extra após 5:00 serve para estudo ou para substituir uma explicação; não é para ler tudo no vídeo.
-Abrir antes a aplicação, o editor e os resultados dos testes. Usar nome e endereço fictícios. No editor, Ctrl+G abre uma linha; Ctrl+F localiza o trecho indicado. Os dois CSS estão compactados em uma única linha: nesses casos, ir à linha 1 e buscar o seletor, sem precisar alterar o arquivo.
+Abrir antes a aplicação, o editor e os resultados dos testes. Usar nome e endereço fictícios. Os arquivos pit2.css e profile.css estão organizados em blocos, com uma propriedade por linha e comentários em português. No editor, Ctrl+G abre a linha indicada; Ctrl+F localiza o seletor. O código-fonte permanece legível para apresentação; o build gera os arquivos menores da publicação.
+
+ATALHOS PARA MOSTRAR O CSS DURANTE A FALA
+Ao explicar a moldura de celular: abrir {refs['size']}. Apontar width, max-width, border-radius e box-shadow.
+Ao explicar a adaptação ao celular: abrir {refs['mobile']}. Mostrar a regra e os ajustes de .phone dentro dela.
+Ao explicar a altura e a rolagem: abrir {refs['height']} e depois {refs['scroll']}.
+Ao explicar os três indicadores do Perfil: abrir {refs['stats']}. Apontar grid-template-columns.
+Ao explicar telas mais estreitas: abrir {refs['small']}. Mostrar a redução de espaçamentos e avatar.
+Não ler todas as propriedades. Apontar o trecho correspondente à explicação e alternar para a aplicação para mostrar o resultado.
 
 0:00 A 0:20 - APRESENTAÇÃO
 FALA: "Este é o SweetCup, uma loja demonstrativa de cupcakes que dá continuidade ao protótipo do PIT I. No PIT II, a interface foi conectada a um serviço em Python e a um banco relacional. Vou mostrar a adaptação da tela, o fluxo de compra e as correções realizadas."
@@ -77,7 +85,7 @@ CÓDIGO DO SALVAMENTO: {refs['save']}
 
 3:25 A 4:10 - EXPLICAÇÃO DO CÓDIGO DA INTERFACE
 FALA: "O React separa a aplicação em componentes, como catálogo, navegação e Perfil. O CSS usa Flexbox para alinhar os elementos e Grid para distribuir os cartões. No Perfil, os três indicadores dividem a largura disponível, e uma regra para telas de até 350 pixels reduz alguns espaçamentos e tamanhos. Para manter os arquivos de publicação menores, o comando de build do Vite gera os arquivos finais e reduz o JavaScript e o CSS. Essa redução dos arquivos e a adaptação do layout são processos diferentes."
-MOSTRAR: os trechos abaixo. No CSS compactado, usar Ctrl+F pelo seletor.
+MOSTRAR: os blocos abaixo, agora formatados com indentação. Usar Ctrl+G para ir diretamente à linha e apontar as propriedades enquanto explica.
 - {refs['frame']}
 - {refs['stats']}
 - {refs['small']}
