@@ -72,57 +72,8 @@ Evidências: anexar prints e arquivo exportado pelo formulário da aplicação.
 Confirmação pelo participante: PENDENTE.
 ''')
     (OUT / 'TESTES_5_PARTICIPANTES.txt').write_text('\n'.join(blocks), encoding='utf-8')
-    coupon_line = line('backend/service.py', 'def totals(')
-    checkout_line = line('backend/service.py', 'async def checkout(')
-    quantity_line = line('backend/service.py', 'def quantity(')
-    schema_line = line('database/001_schema.sql', 'CREATE TABLE IF NOT EXISTS orders')
-    test_line = line('tests/test_service.py', 'test_checkout_keeps_discount_and_clears_cart')
-    script = f'''ROTEIRO DO VÍDEO - SWEETCUP PIT II - 5 MINUTOS
-Gravar com sua própria voz. O vídeo deve mostrar a aplicação funcionando e explicar mudanças. Use dados fictícios.
-
-0:00 a 0:25 - APRESENTAÇÃO
-"Este é o SweetCup, continuação do protótipo de loja de cupcakes do PIT I. No PIT II implementei o processamento em Python e o banco relacional. É uma demonstração acadêmica, sem pagamentos ou entregas reais."
-Mostrar a aplicação e a entrada de demonstração.
-
-0:25 a 1:00 - CATÁLOGO
-Mostrar busca por Rose e filtro por Frutas, abrir um produto e os ingredientes. Explicar que o catálogo é consultado do banco. Favoritar um produto.
-
-1:00 a 1:50 - CARRINHO E ERRO TRATADO
-Adicionar duas unidades de Rose Velvet. O subtotal é R$ 29,80 e a entrega simulada R$ 8,90. Digitar ERRADO no cupom: a aplicação mostra uma falha tratada. Depois aplicar SWEET10: desconto R$ 2,98 e total R$ 35,72. Alterar quantidade e mostrar o recálculo. Voltar a duas unidades antes de seguir.
-
-1:50 a 2:35 - CHECKOUT E PEDIDO
-Mostrar que o desconto continua no checkout. Confirmar com endereço fictício e Pix simulado. Mostrar o ID gerado, os itens e o acompanhamento. Explicar que o servidor grava o pedido em uma transação e evita duplicação por reenvio.
-
-2:35 a 3:10 - PERSISTÊNCIA
-Recarregar a página e abrir Pedidos/Favoritos para comprovar persistência. Mostrar o perfil e editar o nome fictício. Avançar uma etapa da entrega, deixando claro que é simulação.
-
-3:10 a 3:55 - CÓDIGO E BANCO
-Abrir backend/service.py na linha {coupon_line}: regra de total e cupons em centavos.
-Abrir backend/service.py na linha {checkout_line}: criação e persistência do pedido.
-Abrir database/001_schema.sql na linha {schema_line}: tabelas de pedidos e itens.
-Mostrar docs/02_arquitetura_uml.md e docs/03_banco_dados.md rapidamente.
-
-3:55 a 4:30 - TESTES E CORREÇÕES
-Executar python -m unittest discover -s tests -v. Mostrar a aprovação dos 25 testes e o caso tests/test_service.py, linha {test_line}.
-Explicar: "No protótipo o cupom se perdia no pagamento e o pedido não era salvo. Agora o servidor mantém os valores e persiste o fluxo completo."
-Se já houver feedbacks reais, citar a melhoria efetivamente originada neles. Enquanto não houver, apresentar esses itens como correções técnicas, sem atribuí-los aos colegas.
-
-4:30 a 5:00 - QUALIDADE E ENCERRAMENTO
-Mostrar o formulário de avaliação e o laudo. Citar limitações reais: entrega/pagamento simulados, ausência de recuperação da sessão e dependência de imagens externas. Exibir links publicados quando disponíveis.
-
-COMO MOSTRAR ERROS SEM QUEBRAR O PROJETO
-1. Cupom inválido: usar ERRADO na interface. Nenhuma alteração de código é necessária.
-2. Carrinho vazio: remover o último produto e abrir o estado vazio.
-3. Endereço obrigatório: apagar o endereço no checkout e tentar confirmar; o formulário exige preenchimento.
-4. Busca vazia: pesquisar um nome inexistente.
-
-ALTERAÇÃO DE CÓDIGO OPCIONAL, APENAS NA CÓPIA LOCAL
-Arquivo: backend/service.py, linha {quantity_line}. A função quantity valida o limite de unidades. Se quiser demonstrar um defeito e a regressão, copie primeiro o arquivo para fora do projeto, altere temporariamente o limite de 20 para 1, reinicie o servidor e execute o teste test_quantity_rejects_negative_fraction_boolean_and_limit junto com o teste de compra de duas unidades. A compra deve falhar porque a regra foi modificada. Restaure o arquivo antes de gravar a versão final e execute os testes novamente.
-Não publique a versão alterada. Essa encenação deve ser apresentada como demonstração técnica criada para o vídeo, e não como problema encontrado por um participante.
-
-Linhas calculadas automaticamente para a versão que acompanha este roteiro. Se o código mudar, regenere o roteiro.
-'''
-    (OUT / 'ROTEIRO_VIDEO_5_MINUTOS.txt').write_text(script, encoding='utf-8')
+    from build_video_script import build_video_script
+    (OUT / 'ROTEIRO_VIDEO_5_MINUTOS.txt').write_text(build_video_script(ROOT, DATA), encoding='utf-8')
     (OUT / 'LEIA_PRIMEIRO.txt').write_text('''SWEETCUP PIT II - O QUE ESTÁ PRONTO
 
 Abra INICIAR_SWEETCUP.cmd na pasta principal para executar a loja, ou use a aplicação local em http://127.0.0.1:8787 enquanto o servidor estiver aberto.
@@ -134,7 +85,7 @@ RESPOSTAS_PIT2.txt: respostas organizadas para copiar.
 PIT2_ATIVIDADE_PREENCHIDA.docx: cópia do formulário com a parte técnica preenchida e as dependências identificadas.
 LAUDO_QUALIDADE_E_EVIDENCIAS.pdf: qualidade e evidências técnicas.
 TESTES_5_PARTICIPANTES.txt e CINCO_AVALIACOES_PARA_VALIDAR.pdf: fichas para os relatos reais.
-ROTEIRO_VIDEO_5_MINUTOS.txt: tempos, falas sugeridas, testes e linhas do código.
+ROTEIRO_VIDEO_5_MINUTOS.txt: falas para cinco minutos, demonstração de responsividade, arquivos/linhas/trechos do código e material de apoio sobre layout e build.
 EVIDENCIAS: capturas e exportação de uma verificação técnica da interface.
 RESULTADO_TESTES_BACKEND.txt e RESULTADO_HTTP_*.json: execuções dos testes.
 docs, na pasta principal: documentação técnica para o Git.
