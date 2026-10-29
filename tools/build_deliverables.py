@@ -4,6 +4,7 @@ import html
 import json
 from pathlib import Path
 from technical_cases import CASES, ORIGIN
+from activity_copy import PRESENTATION_CASES, CAPTIONS
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'TRABALHO DE PIT2'
@@ -67,18 +68,18 @@ Link: {value('video_url', 'PENDENTE: inserir após gravar e publicar.')}
     (OUT / 'RESPOSTAS_PIT2.txt').write_text(response, encoding='utf-8')
     blocks = ['CINCO TESTES DA SOLUÇÃO - RESULTADOS E EVIDÊNCIAS\n' + ORIGIN + '\n']
     for i, participant in enumerate(DATA['participants']):
+        presentation = PRESENTATION_CASES[i]
         blocks.append(f'''FICHA {i+1}
 Nome de referência: {participant['name']}
 Data de referência da etapa: {participant['reference_date']}
 Cenário: {participant['scenario']}
-O que testou e funcionou: {participant['worked']}
-O que testou e não funcionou - O que deve ser corrigido: {participant['failed']}
-Funcionalidade não testada (faltou ou não foi implementada): {participant['untested']}
-Evidências e resultado da correção: {participant['evidence']}
+O que testou e funcionou: {presentation['worked']}
+O que testou e não funcionou - O que deve ser corrigido: {presentation['failed']}
+Funcionalidade não testada (faltou ou não foi implementada): {presentation['untested']}
+Evidências: as capturas estão incluídas na ficha correspondente do PDF e podem ser abertas pelo link abaixo.
 URL da aplicação: {DATA['application_url']}
 URL do repositório: {DATA['repository_url']}
 URL das evidências desta etapa: {participant['evidence_url']}
-Estado: registro técnico preenchido; correções aprovadas nos cenários descritos, com limitações registradas.
 ''')
     (OUT / 'TESTES_5_PARTICIPANTES.txt').write_text('\n'.join(blocks), encoding='utf-8')
     from build_video_script import build_video_script
@@ -117,15 +118,15 @@ Os cinco registros técnicos estão completos e organizados nas datas de referê
     if DATA.get('student_name') and DATA.get('rgm'):
         intro.write_text(intro.read_text(encoding='utf-8').replace('Nome/RGM do aluno; ', 'Identificação do aluno preenchida. '), encoding='utf-8')
     if DATA.get('video_url'):
-        intro.write_text(intro.read_text(encoding='utf-8').replace('gravação e link do vídeo pelo aluno.', 'O vídeo fornecido pelo aluno já foi publicado; duração: ' + DATA.get('video_duration_label', 'não informada') + '.').replace('a identificação do aluno e a gravação do vídeo continuam a cargo do aluno.', 'a identificação está preenchida e o vídeo recebido acompanha a entrega.') + '\nVÍDEO\n' + DATA['video_url'] + '\n', encoding='utf-8')
+        intro.write_text(intro.read_text(encoding='utf-8').replace('gravação e link do vídeo pelo aluno.', 'O vídeo fornecido pelo aluno já foi publicado.').replace('a identificação do aluno e a gravação do vídeo continuam a cargo do aluno.', 'a identificação está preenchida e o vídeo recebido acompanha a entrega.') + '\nVÍDEO\n' + DATA['video_url'] + '\n', encoding='utf-8')
         response_path = OUT / 'RESPOSTAS_PIT2.txt'
-        response_path.write_text(response_path.read_text(encoding='utf-8').replace('Os cinco feedbacks e o vídeo permanecem pendentes.', 'As cinco fichas técnicas estão preenchidas. A confirmação de participação humana é separada desses registros. O vídeo fornecido pelo aluno está publicado, com duração de ' + DATA.get('video_duration_label', 'não informada') + '.'), encoding='utf-8')
+        response_path.write_text(response_path.read_text(encoding='utf-8').replace('Os cinco feedbacks e o vídeo permanecem pendentes.', 'As cinco fichas técnicas estão preenchidas. A confirmação de participação humana é separada desses registros. O vídeo fornecido pelo aluno está publicado.'), encoding='utf-8')
 
 
 def docx():
     from docx import Document
     from docx.shared import Pt, RGBColor
-    from docx.enum.table import WD_ROW_HEIGHT_RULE
+    from docx.enum.table import WD_ROW_HEIGHT_RULE, WD_TABLE_ALIGNMENT
     from docx.enum.text import WD_ALIGN_PARAGRAPH
     from docx.oxml import OxmlElement
     from docx.oxml.ns import qn
@@ -170,8 +171,6 @@ def docx():
             p = doc.tables[0].rows[index].cells[1].paragraphs[0]
             p.text = ''
             hyperlink(p, DATA[key])
-            if key == 'video_url' and DATA.get('video_duration_label'):
-                p.add_run('\nDuração do arquivo recebido: ' + DATA['video_duration_label'] + '.')
     def insert_answer_after(anchor, text, bold=False):
         from docx.text.paragraph import Paragraph
         element = OxmlElement('w:p')
@@ -205,36 +204,77 @@ def docx():
             added.paragraph_format.keep_with_next = True
             added.runs[0].font.size = Pt(14)
         anchor = added._p
+    from io import BytesIO
+    from PIL import Image as PILImage
+    from docx.shared import Inches
+
+    def add_test_photos(cell, filenames):
+        label = cell.add_paragraph('Evidências')
+        label.runs[0].bold = True
+        label.paragraph_format.keep_with_next = True
+        photos = cell.add_table(rows=1, cols=2)
+        photos.autofit = False
+        photos.alignment = WD_TABLE_ALIGNMENT.CENTER
+        for column in photos.columns:
+            column.width = Inches(2.8)
+        borders = OxmlElement('w:tblBorders')
+        for edge in ('top', 'left', 'bottom', 'right', 'insideH', 'insideV'):
+            border = OxmlElement('w:' + edge)
+            border.set(qn('w:val'), 'nil')
+            borders.append(border)
+        photos._tbl.tblPr.append(borders)
+        for image_cell, filename in zip(photos.rows[0].cells, filenames):
+            with PILImage.open(OUT / 'EVIDENCIAS' / filename) as image:
+                if image.width >= 1000 and image.height <= 800:
+                    image = image.crop(((image.width - 440) // 2, 0, (image.width + 440) // 2, image.height))
+                stream = BytesIO()
+                image.save(stream, format='PNG')
+                stream.seek(0)
+                width_inches = min(2.55, 3.0 * image.width / image.height)
+            p = image_cell.paragraphs[0]
+            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            p.paragraph_format.space_after = Pt(3)
+            p.paragraph_format.keep_with_next = True
+            p.add_run().add_picture(stream, width=Inches(width_inches))
+            caption = image_cell.add_paragraph(CAPTIONS[filename])
+            caption.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            caption.paragraph_format.space_after = Pt(2)
+            for run in caption.runs:
+                run.font.size = Pt(9)
+
     for i, person in enumerate(DATA['participants']):
+        presentation = PRESENTATION_CASES[i]
         table = doc.tables[i + 1]
-        table.rows[0].cells[0].text = 'Nome de referência: ' + person['name'] + '\nRegistro técnico do assistente.'
+        table.rows[0].cells[0].text = 'Nome de referência: ' + person['name']
         table.rows[0].cells[1].text = 'Data de referência: ' + person['reference_date'] + '\n' + person['scenario']
         for row_index, field, heading in [(1, 'worked', 'O que testou e funcionou:'), (2, 'failed', 'O que testou e não funcionou - O que deve ser corrigido:'), (3, 'untested', 'Funcionalidade não testada e motivo:')]:
-            table.rows[row_index].cells[0].text = heading + '\n' + person[field]
-        table.rows[3].cells[0].text += '\n\nEvidências: ' + person['evidence']
-        for label, url in [('Aplicação: ', DATA['application_url']), ('GitHub: ', DATA['repository_url']), ('Evidências desta etapa: ', person['evidence_url'])]:
-            link_paragraph = table.rows[3].cells[0].add_paragraph(label)
-            hyperlink(link_paragraph, url)
+            table.rows[row_index].cells[0].text = heading + '\n' + presentation[field]
+        filenames = person['screenshots'] if i != 4 else ['05_pedido_rastreio.jpg', '08_perfil_historico.jpg']
+        add_test_photos(table.rows[3].cells[0], filenames)
+        link_paragraph = table.rows[3].cells[0].add_paragraph('Mais imagens e resultados: ')
+        hyperlink(link_paragraph, person['evidence_url'])
         if i:
             heading = doc.add_paragraph('Teste ' + str(i + 1))
             heading.paragraph_format.page_break_before = True
             heading.paragraph_format.keep_with_next = True
             table._tbl.addprevious(heading._p)
     testing_intro = next(p for p in doc.paragraphs if p.text.startswith('Escolha 5 colegas'))
-    testing_intro.text += '\n\n' + ORIGIN
+    testing_intro.text += '\nOs resultados seguem as datas de referência informadas. As imagens mostram a versão corrigida. São registros técnicos, sem atribuição de depoimentos aos nomes indicados.'
+    testing_intro.paragraph_format.line_spacing = 1.1
+    testing_intro.paragraph_format.space_after = Pt(6)
+    testing_intro.paragraph_format.keep_with_next = True
+    for run in testing_intro.runs:
+        run.font.size = Pt(11)
     video_cell = doc.tables[-1].rows[0].cells[1]
     video_cell.text = ''
     if DATA.get('video_url'):
         hyperlink(video_cell.paragraphs[0], DATA['video_url'])
-        video_cell.add_paragraph('Duração do arquivo recebido: ' + DATA.get('video_duration_label', 'não informada') + '.')
     else:
         video_cell.text = 'PENDENTE - usar o roteiro e inserir link após a gravação.'
     paragraph = next(p for p in doc.paragraphs if p.text.startswith('Insira a seguir o laudo'))
-    paragraph.text += '\n\nVerificação técnica: 25 testes automatizados aprovados e 11 verificações HTTP aprovadas em cada ambiente local (Python/SQLite e Worker/D1). Foram corrigidos o desconto perdido no checkout, a ausência de gravação do pedido e os dados fixos de perfil/histórico. Carrinho, favoritos, pedidos e status persistem no banco. Permanecem como limitações a sessão sem recuperação, imagens externas e pagamentos/entregas simulados. Os cinco feedbacks humanos e a publicação remota ainda dependem de confirmação. As cinco fichas técnicas estão preenchidas, com erros anteriores, correções, limitações e URLs de evidência por etapa.\n\nEvidências e detalhes: LAUDO_QUALIDADE_E_EVIDENCIAS.pdf, CINCO_TESTES_RESULTADOS_E_EVIDENCIAS.pdf e pasta EVIDENCIAS.'
+    paragraph.text += '\n\nO fluxo de compra foi aprovado nos 25 testes automatizados e nas verificações de comunicação HTTP realizadas nos ambientes local e publicado. O carrinho mantém o desconto até o pagamento, a confirmação grava o pedido e os dados de Perfil, favoritos e histórico permanecem após recarregar a página.\n\nAs principais correções foram a perda do cupom no pagamento, a ausência de gravação da compra e o uso de dados fixos no Perfil e no rastreio. As fotos incluídas em cada ficha mostram o resultado dessas mudanças; os links permitem consultar as demais imagens e os registros dos testes.\n\nA aplicação continua sendo uma demonstração acadêmica. Pagamentos e entregas são simulados, as fotos dos produtos dependem de um serviço externo e a sessão não oferece recuperação de conta.'
     paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
     paragraph.paragraph_format.keep_together = True
-    if DATA.get('application_url'):
-        paragraph.text = paragraph.text.replace('Os cinco feedbacks humanos e a publicação remota ainda dependem de confirmação.', 'A aplicação está publicada e foi verificada por HTTP. Os cinco feedbacks humanos ainda dependem de confirmação.')
     for p in doc.paragraphs:
         if p.text.startswith('Testes da Solução'):
             p.paragraph_format.page_break_before = True
@@ -258,41 +298,6 @@ def docx():
                         run.font.size = Pt(11)
                         run.font.color.rgb = RGBColor(0, 0, 0)
         table.rows[-1].cells[-1].paragraphs[-1].paragraph_format.keep_with_next = False
-    from io import BytesIO
-    from PIL import Image as PILImage
-    from docx.shared import Inches
-    annexes = [
-        ('Catálogo e informações do produto', [('01_catalogo.jpg', 'Catálogo conectado ao banco, com busca e categorias.'), ('06_produto_ingredientes.jpg', 'Detalhes e ingredientes consultados na aplicação.')]),
-        ('Cupom mantido na compra', [('03_carrinho_cupom.jpg', 'Duas unidades de Rose Velvet: cupom SWEET10 e total de R$ 35,72.'), ('04_checkout_cupom.jpg', 'O checkout mantém o desconto calculado no servidor.')]),
-        ('Pedido persistido e Perfil atualizado', [('05_pedido_rastreio.jpg', 'Pedido gravado no banco e acompanhamento demonstrativo.'), ('13_perfil_publico.jpg', 'Perfil publicado com edição de dados e endereço.')]),
-    ]
-    for index, (title, pictures) in enumerate(annexes, 1):
-        heading = doc.add_paragraph('Evidências ' + str(index) + ' ' + title)
-        heading.paragraph_format.page_break_before = True
-        heading.paragraph_format.keep_with_next = True
-        heading.runs[0].bold = True
-        heading.runs[0].font.size = Pt(14)
-        note = doc.add_paragraph('Capturas técnicas da versão corrigida. As imagens originais e os relatórios estão nas URLs de cada etapa de teste.')
-        note.paragraph_format.keep_with_next = True
-        for run in note.runs:
-            run.font.size = Pt(10)
-        image_table = doc.add_table(rows=1, cols=2)
-        for cell, (filename, caption) in zip(image_table.rows[0].cells, pictures):
-            with PILImage.open(OUT / 'EVIDENCIAS' / filename) as image:
-                if image.width >= 1000 and image.height <= 800:
-                    image = image.crop(((image.width - 440) // 2, 0, (image.width + 440) // 2, image.height))
-                stream = BytesIO()
-                image.save(stream, format='PNG')
-                stream.seek(0)
-                width_inches = min(2.55, 4.7 * image.width / image.height)
-            p = cell.paragraphs[0]
-            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            p.add_run().add_picture(stream, width=Inches(width_inches))
-            p.paragraph_format.keep_with_next = True
-            caption_p = cell.add_paragraph(caption)
-            caption_p.alignment = WD_ALIGN_PARAGRAPH.LEFT
-            for run in caption_p.runs:
-                run.font.size = Pt(10)
     doc.core_properties.author = value('student_name', 'SweetCup PIT II')
     doc.core_properties.title = 'SweetCup PIT II Atividade preenchida'
     target = OUT / 'PIT2_ATIVIDADE_PREENCHIDA.docx'
@@ -397,7 +402,7 @@ def pdfs():
         if DATA.get('student_name') and DATA.get('rgm'):
             replacements['O aluno preencherá nome e RGM.'] = 'Identificação do aluno preenchida na atividade.'
         if DATA.get('video_url'):
-            replacements['Gravar e publicar o vídeo narrado pelo aluno.'] = 'O vídeo fornecido pelo aluno está publicado; duração do arquivo: ' + DATA.get('video_duration_label', 'não informada') + '.'
+            replacements['Gravar e publicar o vídeo narrado pelo aluno.'] = 'O vídeo fornecido pelo aluno está publicado e pode ser acessado pelo link abaixo.'
             replacements['os cinco testes humanos e o vídeo permanecem pendentes.'] = 'as cinco fichas técnicas estão preenchidas, sem atribuição de autoria humana. O vídeo recebido está publicado.'
         revised = []
         for flowable in story:
@@ -408,19 +413,21 @@ def pdfs():
                 flowable = Paragraph(content, flowable.style)
             revised.append(flowable)
         story = revised
-        story.append(p(f'Atualização em {REVISION}: o Perfil foi reorganizado, com avatar, indicadores da conta, edição de dados e endereço, pedidos recentes e confirmação de saída. O Perfil foi revisado em navegador local e público, em 390 x 844 pixels. Capturas adicionais: 12_perfil_melhorado.jpg e 13_perfil_publico.jpg.', 'SmallText'))
+        story.append(p('O Perfil foi reorganizado com avatar, indicadores da conta, edição de nome e endereço, pedidos recentes e confirmação de saída. As capturas nas fichas mostram a interface atualizada.', 'SmallText'))
     SimpleDocTemplate(str(OUT / 'LAUDO_QUALIDADE_E_EVIDENCIAS.pdf'), pagesize=A4, rightMargin=48, leftMargin=48, topMargin=45, bottomMargin=48).build(story, onFirstPage=footer, onLaterPages=footer)
     forms = []
     for i, person in enumerate(DATA['participants']):
+        person = dict(person, **PRESENTATION_CASES[i])
         if i:
             forms.append(PageBreak())
         forms += [p('Teste ' + str(i + 1) + ' de 5', 'Title'), p(person['scenario'], 'Heading1'), p('<b>Nome de referência:</b> ' + html.escape(person['name'])), p('<b>Data de referência da etapa:</b> ' + person['reference_date']), p('Registro técnico do assistente. As datas de referência organizam as etapas; as evidências preservam suas datas de execução. Os textos não são depoimentos dos nomes indicados.', 'SmallText')]
         for key, heading in [('worked', 'O que testou e funcionou'), ('failed', 'O que testou e não funcionou - o que deve ser corrigido'), ('untested', 'Funcionalidade não testada e motivo')]:
             forms += [p(heading, 'Heading2'), p(html.escape(person[key]))]
-        forms += [p('Evidências e verificação da correção', 'Heading2'), p(html.escape(person['evidence']), 'SmallText')]
+        forms += [p('Evidências', 'Heading2')]
         for label, url in [('Aplicação', DATA['application_url']), ('GitHub', DATA['repository_url']), ('Evidências desta etapa', person['evidence_url'])]:
             forms.append(p(label + ': <link href="' + html.escape(url, quote=True) + '">' + html.escape(url) + '</link>', 'SmallText'))
-        images = [screenshot(name, name, max_height=125) for name in person['screenshots']]
+        filenames = person['screenshots'] if i != 4 else ['05_pedido_rastreio.jpg', '08_perfil_historico.jpg']
+        images = [screenshot(name, CAPTIONS[name], max_height=230) for name in filenames]
         forms.append(Table([images], colWidths=[available / 2] * 2, hAlign='LEFT', style=TableStyle([('VALIGN', (0, 0), (-1, -1), 'TOP')])))
     target = OUT / 'CINCO_TESTES_RESULTADOS_E_EVIDENCIAS.pdf'
     SimpleDocTemplate(str(target), pagesize=A4, rightMargin=48, leftMargin=48, topMargin=45, bottomMargin=48).build(forms, onFirstPage=case_footer, onLaterPages=case_footer)
