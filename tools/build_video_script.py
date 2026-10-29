@@ -43,11 +43,22 @@ As falas entre aspas são para narrar. As indicações MOSTRAR e CÓDIGO orienta
 Abrir antes a aplicação, o editor e os resultados dos testes. Usar nome e endereço fictícios. Os arquivos pit2.css e profile.css estão organizados em blocos, com uma propriedade por linha e comentários em português. No editor, Ctrl+G abre a linha indicada; Ctrl+F localiza o seletor. O código-fonte permanece legível para apresentação; o build gera os arquivos menores da publicação.
 
 ATALHOS PARA MOSTRAR O CSS DURANTE A FALA
-Ao explicar a moldura de celular: abrir {refs['size']}. Apontar width, max-width, border-radius e box-shadow.
-Ao explicar a adaptação ao celular: abrir {refs['mobile']}. Mostrar a regra e os ajustes de .phone dentro dela.
-Ao explicar a altura e a rolagem: abrir {refs['height']} e depois {refs['scroll']}.
-Ao explicar os três indicadores do Perfil: abrir {refs['stats']}. Apontar grid-template-columns.
-Ao explicar telas mais estreitas: abrir {refs['small']}. Mostrar a redução de espaçamentos e avatar.
+Moldura de celular:
+{refs['size']}
+Apontar width, max-width, border-radius e box-shadow.
+Adaptação ao celular:
+{refs['mobile']}
+Mostrar a regra e os ajustes de .phone dentro dela.
+Altura e rolagem:
+{refs['height']}
+{refs['scroll']}
+Mostrar 100dvh e overflow: auto.
+Três indicadores do Perfil:
+{refs['stats']}
+Apontar grid-template-columns.
+Telas mais estreitas:
+{refs['small']}
+Mostrar a redução de espaçamentos e avatar.
 Não ler todas as propriedades. Apontar o trecho correspondente à explicação e alternar para a aplicação para mostrar o resultado.
 
 0:00 A 0:20 - APRESENTAÇÃO
