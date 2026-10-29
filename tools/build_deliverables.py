@@ -42,7 +42,8 @@ Front-end: React, TypeScript, HTML/CSS e Vite.
 Banco de dados: SQLite local; esquema e adaptador Cloudflare D1 também testados localmente.
 Hospedagem: {DATA['hosting_status']}
 Plataforma: aplicação web responsiva com interface mobile acessível pelo navegador.
-Modo de codificação: [X] Tradicional. [ ] Low-code. [ ] No-code.
+Modo de codificação: [ ] Tradicional. [X] Low-code. [ ] No-code.
+Detalhamento: {DATA.get('coding_mode_note', 'Geração assistida da interface, com complementação por código React/TypeScript e Python.')}
 Link do GitHub: {value('repository_url', 'PENDENTE DE PUBLICAÇÃO')}
 Link da aplicação: {value('application_url', 'PENDENTE DE PUBLICAÇÃO. Demonstração local: http://127.0.0.1:8787 (não acessível aos colegas por esse endereço).')}
 Link do vídeo: {value('video_url', 'PENDENTE: gravação e publicação pelo aluno.')}
@@ -91,9 +92,11 @@ PRONTO: front-end conectado ao back-end Python; banco relacional; catálogo; ses
 ARQUIVOS
 RESPOSTAS_PIT2.txt: respostas organizadas para copiar.
 PIT2_ATIVIDADE_PREENCHIDA.docx: cópia do formulário com a parte técnica preenchida e as dependências identificadas.
+PIT2_ATIVIDADE_FINAL_Francisco_Maxwell.pdf: PDF principal no modelo da instituição, com identificação, Low-code, tecnologias, hospedagem, cinco testes, laudo, URLs e capturas.
 LAUDO_QUALIDADE_E_EVIDENCIAS.pdf: qualidade e evidências técnicas.
 TESTES_5_PARTICIPANTES.txt e CINCO_TESTES_RESULTADOS_E_EVIDENCIAS.pdf: cinco fichas preenchidas, com datas de referência, resultados, erros, correções, limitações e evidências. CINCO_AVALIACOES_PARA_VALIDAR.pdf foi atualizado com o mesmo conteúdo para manter o acesso pelo nome anterior.
 ROTEIRO_VIDEO_5_MINUTOS.txt: falas para cinco minutos, demonstração de responsividade, arquivos/linhas/trechos do código e material de apoio sobre layout e build.
+COMPLEMENTO_VIDEO_TECNOLOGIAS.txt: sugestão de fala adicional para complementar a gravação recebida, se necessário.
 EVIDENCIAS: capturas e exportação de uma verificação técnica da interface.
 RESULTADO_TESTES_BACKEND.txt e RESULTADO_HTTP_*.json: execuções dos testes.
 docs, na pasta principal: documentação técnica para o Git.
@@ -111,6 +114,12 @@ Os cinco registros técnicos estão completos e organizados nas datas de referê
         response_path = OUT / 'RESPOSTAS_PIT2.txt'
         response_path.write_text(response_path.read_text(encoding='utf-8').replace('A aprovação técnica foi local; a publicação remota, os cinco feedbacks e o vídeo permanecem pendentes.', 'A aplicação também foi publicada e seu contrato HTTP foi verificado no endereço público. Os cinco feedbacks e o vídeo permanecem pendentes.'), encoding='utf-8')
         intro.write_text(intro.read_text(encoding='utf-8').replace('autenticação para concluir a publicação na Cloudflare; ', '').replace('A chave Cloudflare disponível foi verificada, mas não permite Workers/D1. Nenhuma publicação remota foi confirmada.', 'A aplicação está publicada na Cloudflare e foi verificada por HTTP. O link público está abaixo.'), encoding='utf-8')
+    if DATA.get('student_name') and DATA.get('rgm'):
+        intro.write_text(intro.read_text(encoding='utf-8').replace('Nome/RGM do aluno; ', 'Identificação do aluno preenchida. '), encoding='utf-8')
+    if DATA.get('video_url'):
+        intro.write_text(intro.read_text(encoding='utf-8').replace('gravação e link do vídeo pelo aluno.', 'O vídeo fornecido pelo aluno já foi publicado; duração: ' + DATA.get('video_duration_label', 'não informada') + '.').replace('a identificação do aluno e a gravação do vídeo continuam a cargo do aluno.', 'a identificação está preenchida e o vídeo recebido acompanha a entrega.') + '\nVÍDEO\n' + DATA['video_url'] + '\n', encoding='utf-8')
+        response_path = OUT / 'RESPOSTAS_PIT2.txt'
+        response_path.write_text(response_path.read_text(encoding='utf-8').replace('Os cinco feedbacks e o vídeo permanecem pendentes.', 'As cinco fichas técnicas estão preenchidas. A confirmação de participação humana é separada desses registros. O vídeo fornecido pelo aluno está publicado, com duração de ' + DATA.get('video_duration_label', 'não informada') + '.'), encoding='utf-8')
 
 
 def docx():
@@ -140,15 +149,20 @@ def docx():
         paragraph._p.append(element)
     for p in doc.paragraphs:
         if p.text.startswith('Nome:'):
-            p.text = 'Nome: ' + value('student_name', '________________________________________')
+            p.text = ''
+            p.add_run('Nome: ').bold = True
+            p.add_run(value('student_name', '________________________________________'))
         elif p.text.startswith('RGM:'):
-            p.text = 'RGM: ' + value('rgm', '________________________________________')
+            p.text = ''
+            p.add_run('RGM: ').bold = True
+            p.add_run(value('rgm', '________________________________________'))
         elif p.text.startswith('Link do repositório:'):
             p.text = 'Link do repositório: ' + value('repository_url', 'PENDENTE - autenticar GitHub para publicação. Documentação pronta em docs/.')
             if DATA.get('repository_url'):
                 p.text = 'Link do repositório: '
                 hyperlink(p, DATA['repository_url'])
-    entries = ['Python', 'SQLite local e Cloudflare D1 na aplicação publicada.', DATA['hosting_status'], 'Web responsiva, com interface mobile no navegador.', '(X) Tradicional\n( ) Low-code\n( ) No-code', value('repository_url', 'PENDENTE - autenticação e publicação no GitHub.'), value('application_url', 'PENDENTE - publicação remota. Local: http://127.0.0.1:8787.'), value('video_url', 'PENDENTE - gravação e publicação pelo aluno.')]
+    mode = '( ) Tradicional\n(X) Low-code\n( ) No-code\n' + DATA.get('coding_mode_note', 'Geração assistida da interface com complementação por código.')
+    entries = ['Python', 'SQLite local e Cloudflare D1 na aplicação publicada.', DATA['hosting_status'], 'Web responsiva, com interface mobile no navegador.', mode, value('repository_url', 'PENDENTE - autenticação e publicação no GitHub.'), value('application_url', 'PENDENTE - publicação remota. Local: http://127.0.0.1:8787.'), value('video_url', 'PENDENTE - gravação e publicação pelo aluno.')]
     for row, content in zip(doc.tables[0].rows, entries):
         row.cells[1].text = content
     for index, key in [(5, 'repository_url'), (6, 'application_url'), (7, 'video_url')]:
@@ -156,6 +170,41 @@ def docx():
             p = doc.tables[0].rows[index].cells[1].paragraphs[0]
             p.text = ''
             hyperlink(p, DATA[key])
+            if key == 'video_url' and DATA.get('video_duration_label'):
+                p.add_run('\nDuração do arquivo recebido: ' + DATA['video_duration_label'] + '.')
+    def insert_answer_after(anchor, text, bold=False):
+        from docx.text.paragraph import Paragraph
+        element = OxmlElement('w:p')
+        anchor.addnext(element)
+        p = Paragraph(element, doc._body)
+        p.alignment = WD_ALIGN_PARAGRAPH.LEFT
+        p.paragraph_format.space_after = Pt(7)
+        run = p.add_run(text)
+        run.font.size = Pt(11)
+        run.font.color.rgb = RGBColor(0, 0, 0)
+        run.bold = bold
+        p.paragraph_format.keep_together = True
+        return p
+    repo_paragraph = next(p for p in doc.paragraphs if p.text.startswith('Link do repositório:'))
+    insert_answer_after(repo_paragraph._p, 'Documentação atualizada: o protótipo do PIT I foi evoluído para uma loja acadêmica funcional. Foram registrados escopo, requisitos, arquitetura, navegação, modelo relacional, dicionário de dados, manual, testes e correções. O Git preserva a versão inicial e as mudanças do PIT II; a pasta docs do repositório reúne a documentação técnica. As cinco etapas de teste estão organizadas nas datas de referência informadas, com resultados e URLs de evidência.')
+    tech = [
+        ('Tecnologias e hospedagem da solução', True),
+        ('Interface e modo de construção: Low-code, com geração assistida da interface e complementação por código. O protótipo visual em Figma serviu de base; os componentes React e TypeScript permanecem editáveis e foram integrados à lógica Python.', False),
+        ('React, TypeScript e CSS: React organiza catálogo, carrinho, pagamento e Perfil em componentes. TypeScript verifica os tipos dos dados. Flexbox, Grid e regras CSS por largura adaptam a interface; no computador há uma moldura de celular, removida nas telas estreitas.', False),
+        ('Vite: executa o ambiente de desenvolvimento e gera os arquivos finais na pasta dist. O build reduz o JavaScript e o CSS da publicação, enquanto os arquivos de código-fonte ficam formatados para leitura e manutenção.', False),
+        ('Python e API: o servidor valida a sessão, quantidades, endereço e cupons; calcula os valores em centavos; registra pedidos e atualiza o estado da conta. A interface envia requisições HTTP com dados JSON. A regra de preço fica no servidor.', False),
+        ('Banco de dados: Cloudflare D1 guarda os dados da aplicação publicada em tabelas relacionais de clientes, sessões, produtos, ingredientes, carrinho, favoritos, pedidos, itens e feedbacks. SQLite atende à execução local e aos testes. Recarregar a página recupera os dados da sessão no banco.', False),
+        ('Hospedagem: Cloudflare Workers executa a API Python e entrega os arquivos estáticos gerados pelo Vite. O binding DB conecta o Worker ao D1; o binding ASSETS atende os recursos da interface. O endereço usa HTTPS e o subdomínio gratuito workers.dev. O código e a documentação estão no GitHub.', False),
+        ('Diferenciais técnicos: pedido e itens são gravados em operação atômica; uma chave de requisição evita duplicação no reenvio; uma versão do carrinho bloqueia confirmação com valores desatualizados. Cookies HttpOnly e SameSite são usados na sessão, com Secure no acesso HTTPS. Esses mecanismos foram verificados nos testes do projeto.', False),
+    ]
+    anchor = doc.tables[0]._tbl
+    for content, bold in tech:
+        added = insert_answer_after(anchor, content, bold)
+        if bold:
+            added.paragraph_format.page_break_before = True
+            added.paragraph_format.keep_with_next = True
+            added.runs[0].font.size = Pt(14)
+        anchor = added._p
     for i, person in enumerate(DATA['participants']):
         table = doc.tables[i + 1]
         table.rows[0].cells[0].text = 'Nome de referência: ' + person['name'] + '\nRegistro técnico do assistente.'
@@ -173,7 +222,13 @@ def docx():
             table._tbl.addprevious(heading._p)
     testing_intro = next(p for p in doc.paragraphs if p.text.startswith('Escolha 5 colegas'))
     testing_intro.text += '\n\n' + ORIGIN
-    doc.tables[-1].rows[0].cells[1].text = value('video_url', 'PENDENTE - usar o roteiro de cinco minutos e inserir o link após a gravação.')
+    video_cell = doc.tables[-1].rows[0].cells[1]
+    video_cell.text = ''
+    if DATA.get('video_url'):
+        hyperlink(video_cell.paragraphs[0], DATA['video_url'])
+        video_cell.add_paragraph('Duração do arquivo recebido: ' + DATA.get('video_duration_label', 'não informada') + '.')
+    else:
+        video_cell.text = 'PENDENTE - usar o roteiro e inserir link após a gravação.'
     paragraph = next(p for p in doc.paragraphs if p.text.startswith('Insira a seguir o laudo'))
     paragraph.text += '\n\nVerificação técnica: 25 testes automatizados aprovados e 11 verificações HTTP aprovadas em cada ambiente local (Python/SQLite e Worker/D1). Foram corrigidos o desconto perdido no checkout, a ausência de gravação do pedido e os dados fixos de perfil/histórico. Carrinho, favoritos, pedidos e status persistem no banco. Permanecem como limitações a sessão sem recuperação, imagens externas e pagamentos/entregas simulados. Os cinco feedbacks humanos e a publicação remota ainda dependem de confirmação. As cinco fichas técnicas estão preenchidas, com erros anteriores, correções, limitações e URLs de evidência por etapa.\n\nEvidências e detalhes: LAUDO_QUALIDADE_E_EVIDENCIAS.pdf, CINCO_TESTES_RESULTADOS_E_EVIDENCIAS.pdf e pasta EVIDENCIAS.'
     paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
@@ -181,6 +236,9 @@ def docx():
     if DATA.get('application_url'):
         paragraph.text = paragraph.text.replace('Os cinco feedbacks humanos e a publicação remota ainda dependem de confirmação.', 'A aplicação está publicada e foi verificada por HTTP. Os cinco feedbacks humanos ainda dependem de confirmação.')
     for p in doc.paragraphs:
+        if p.text.startswith('Testes da Solução'):
+            p.paragraph_format.page_break_before = True
+            p.paragraph_format.keep_with_next = True
         if p.text.startswith('Laudo de Qualidade'):
             p.paragraph_format.page_break_before = True
             p.paragraph_format.keep_with_next = True
@@ -200,7 +258,57 @@ def docx():
                         run.font.size = Pt(11)
                         run.font.color.rgb = RGBColor(0, 0, 0)
         table.rows[-1].cells[-1].paragraphs[-1].paragraph_format.keep_with_next = False
-    doc.save(OUT / 'PIT2_ATIVIDADE_PREENCHIDA.docx')
+    from io import BytesIO
+    from PIL import Image as PILImage
+    from docx.shared import Inches
+    annexes = [
+        ('Catálogo e informações do produto', [('01_catalogo.jpg', 'Catálogo conectado ao banco, com busca e categorias.'), ('06_produto_ingredientes.jpg', 'Detalhes e ingredientes consultados na aplicação.')]),
+        ('Cupom mantido na compra', [('03_carrinho_cupom.jpg', 'Duas unidades de Rose Velvet: cupom SWEET10 e total de R$ 35,72.'), ('04_checkout_cupom.jpg', 'O checkout mantém o desconto calculado no servidor.')]),
+        ('Pedido persistido e Perfil atualizado', [('05_pedido_rastreio.jpg', 'Pedido gravado no banco e acompanhamento demonstrativo.'), ('13_perfil_publico.jpg', 'Perfil publicado com edição de dados e endereço.')]),
+    ]
+    for index, (title, pictures) in enumerate(annexes, 1):
+        heading = doc.add_paragraph('Evidências ' + str(index) + ' ' + title)
+        heading.paragraph_format.page_break_before = True
+        heading.paragraph_format.keep_with_next = True
+        heading.runs[0].bold = True
+        heading.runs[0].font.size = Pt(14)
+        note = doc.add_paragraph('Capturas técnicas da versão corrigida. As imagens originais e os relatórios estão nas URLs de cada etapa de teste.')
+        note.paragraph_format.keep_with_next = True
+        for run in note.runs:
+            run.font.size = Pt(10)
+        image_table = doc.add_table(rows=1, cols=2)
+        for cell, (filename, caption) in zip(image_table.rows[0].cells, pictures):
+            with PILImage.open(OUT / 'EVIDENCIAS' / filename) as image:
+                if image.width >= 1000 and image.height <= 800:
+                    image = image.crop(((image.width - 440) // 2, 0, (image.width + 440) // 2, image.height))
+                stream = BytesIO()
+                image.save(stream, format='PNG')
+                stream.seek(0)
+                width_inches = min(2.55, 4.7 * image.width / image.height)
+            p = cell.paragraphs[0]
+            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            p.add_run().add_picture(stream, width=Inches(width_inches))
+            p.paragraph_format.keep_with_next = True
+            caption_p = cell.add_paragraph(caption)
+            caption_p.alignment = WD_ALIGN_PARAGRAPH.LEFT
+            for run in caption_p.runs:
+                run.font.size = Pt(10)
+    doc.core_properties.author = value('student_name', 'SweetCup PIT II')
+    doc.core_properties.title = 'SweetCup PIT II Atividade preenchida'
+    target = OUT / 'PIT2_ATIVIDADE_PREENCHIDA.docx'
+    doc.save(target)
+    # O python-docx pode serializar partes que não foram editadas. Restaurar
+    # essas partes mantém cabeçalho, imagens e estilos originais byte a byte.
+    from zipfile import ZipFile
+    edited_parts = {'word/document.xml', 'word/_rels/document.xml.rels', 'docProps/core.xml', '[Content_Types].xml'}
+    with ZipFile(OUT / 'PIT_atividade (8).docx') as original, ZipFile(target) as filled:
+        original_names = set(original.namelist())
+        patched = BytesIO()
+        with ZipFile(patched, 'w') as result:
+            for entry in filled.infolist():
+                content = original.read(entry.filename) if entry.filename in original_names and entry.filename not in edited_parts else filled.read(entry.filename)
+                result.writestr(entry, content)
+    target.write_bytes(patched.getvalue())
     print('DOCX preenchido; pendências externas identificadas.')
 
 
@@ -286,6 +394,11 @@ def pdfs():
             'O aluno preencherá nome e RGM. Verificar os links públicos após a publicação na Cloudflare.': 'O aluno preencherá nome e RGM. Os links de aplicação e repositório estão publicados e verificados.',
             'O laudo registra as correções e os limites observados; não declara como realizados a publicação remota, os cinco testes humanos ou o vídeo pendentes.': 'O laudo registra as correções e os limites observados. A publicação foi verificada por HTTP; os cinco testes humanos e o vídeo permanecem pendentes.',
         }
+        if DATA.get('student_name') and DATA.get('rgm'):
+            replacements['O aluno preencherá nome e RGM.'] = 'Identificação do aluno preenchida na atividade.'
+        if DATA.get('video_url'):
+            replacements['Gravar e publicar o vídeo narrado pelo aluno.'] = 'O vídeo fornecido pelo aluno está publicado; duração do arquivo: ' + DATA.get('video_duration_label', 'não informada') + '.'
+            replacements['os cinco testes humanos e o vídeo permanecem pendentes.'] = 'as cinco fichas técnicas estão preenchidas, sem atribuição de autoria humana. O vídeo recebido está publicado.'
         revised = []
         for flowable in story:
             if isinstance(flowable, Paragraph):

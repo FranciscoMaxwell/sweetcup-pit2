@@ -7,6 +7,8 @@ Aplicação publicada: [sweetcupcrazy.maxwellgodhero.workers.dev](https://sweetc
 
 Resultados por etapa e capturas: [evidências dos cinco testes](https://sweetcupcrazy.maxwellgodhero.workers.dev/evidencias/index.html). As etapas usam as cinco datas de referência fornecidas pelo aluno; os registros de execução preservam suas datas originais. Os textos são verificações técnicas.
 
+[Vídeo de demonstração fornecido pelo aluno](https://sweetcupcrazy.maxwellgodhero.workers.dev/video/index.html), com duração de 3 minutos e 22 segundos. A interface usa um fluxo de geração assistida com complementação por código React/TypeScript; o serviço de regras foi implementado em Python.
+
 ## Executar
 
 ```powershell

@@ -14,4 +14,4 @@ A revisão visual e de interação foi realizada localmente, incluindo tamanho d
 
 ## Entrega acadêmica
 
-O aluno preencherá nome e RGM. Os cinco participantes ainda precisam confirmar seus relatos, datas e evidências; as datas informadas pertencem a 2026. O vídeo narrado será gravado pelo aluno usando o roteiro preparado. Os testes técnicos não são atribuídos aos participantes.
+A identificação do aluno foi preenchida na entrega local. As cinco fichas técnicas usam as datas de referência informadas, de 2026, e não são depoimentos atribuídos aos participantes. O [vídeo fornecido pelo aluno está publicado](https://sweetcupcrazy.maxwellgodhero.workers.dev/video/index.html), com duração de 3 minutos e 22 segundos. O arquivo original foi preservado; há um roteiro local de complemento para chegar a cinco minutos, se necessário.
