@@ -1,0 +1,143 @@
+COMPARAÇÃO DO PROTÓTIPO COM A VERSÃO FUNCIONAL
+Origem: inspeção do código preservado no commit 273393c. Estes trechos comprovam limitações do protótipo; não são uma execução histórica dos testes nas datas de referência.
+As capturas JPG mostram a versão corrigida, e os relatórios de testes registram as verificações da correção.
+
+SEÇÃO 1 - Entrada e navegação básica
+Data de referência da etapa: 29/08/2026
+Problema e correção: No protótipo, a navegação era apenas visual e não havia sessão persistida no servidor. A correção conectou a entrada à API Python e ao banco. Na versão final, criação de sessão, rejeição de sessão inválida e encerramento de acesso passaram nos testes. Não foi registrada nova falha nesses cenários.
+
+Arquivo no protótipo: src/app/App.tsx
+Comando para conferir: git show 273393c:src/app/App.tsx
+
+ 107: 
+ 108: export default function App() {
+ 109:   const [screen, setScreen] = useState<AppScreen>("splash");
+ 110:   const [selectedCupcake, setSelectedCupcake] = useState<Cupcake>(CUPCAKES[0]);
+ 111:   const [cart, setCart] = useState<CartItem[]>([]);
+ 112:   const [favorites, setFavorites] = useState<number[]>([1, 3, 5, 8]);
+
+Arquivo no protótipo: src/app/components/SplashScreen.tsx
+Comando para conferir: git show 273393c:src/app/components/SplashScreen.tsx
+
+  95:       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "16px", zIndex: 1, width: "100%" }}>
+  96:         <button
+  97:           onClick={() => navigate("home")}
+  98:           style={{
+  99:             width: "100%", padding: "18px", borderRadius: "16px", border: "none",
+ 100:             background: "#fff", color: "#E8648C", fontSize: "17px", fontWeight: 700,
+
+SEÇÃO 2 - Catálogo, busca, filtros e produto
+Data de referência da etapa: 09/09/2026
+Problema e correção: No protótipo, o catálogo era uma lista fixa no código da interface, sem consulta ao banco. Essa limitação foi corrigida com a API e as tabelas de produtos e ingredientes. A consulta de oito produtos passou no teste automatizado; busca, filtro e ingredientes foram conferidos no navegador. Não foi registrada falha funcional nesses passos da versão final.
+
+Arquivo no protótipo: src/app/App.tsx
+Comando para conferir: git show 273393c:src/app/App.tsx
+
+  33: }
+  34: 
+  35: export const CUPCAKES: Cupcake[] = [
+  36:   {
+  37:     id: 1, name: "Rose Velvet", price: 14.90,
+  38:     description: "Red velvet com cobertura de cream cheese e pétalas de rosa comestíveis. Uma experiência única de sabor e sofisticação.",
+
+SEÇÃO 3 - Carrinho, cupom e checkout
+Data de referência da etapa: 23/09/2026
+Problema e correção: O pagamento do protótipo somava subtotal e entrega sem receber o desconto aplicado no carrinho. A correção centralizou o cálculo em centavos no servidor e preservou o cupom na compra. Os testes de recálculo, cupom inválido e checkout passaram. Endereço vazio, quantidade inválida e carrinho vazio recebem erro tratado, em vez de gerar pedido inválido.
+
+Arquivo no protótipo: src/app/components/CartScreen.tsx
+Comando para conferir: git show 273393c:src/app/components/CartScreen.tsx
+
+  17: export function CartScreen({ navigate, cart, setCart, cartCount, cartTotal }: Props) {
+  18:   const [coupon, setCoupon] = useState("");
+  19:   const [discount, setDiscount] = useState(0);
+  20:   const [couponMsg, setCouponMsg] = useState("");
+  21: 
+  22:   const delivery = cart.length > 0 ? 8.90 : 0;
+
+Arquivo no protótipo: src/app/components/CartScreen.tsx
+Comando para conferir: git show 273393c:src/app/components/CartScreen.tsx
+
+  21: 
+  22:   const delivery = cart.length > 0 ? 8.90 : 0;
+  23:   const total = cartTotal - discount + delivery;
+  24: 
+  25:   const updateQty = (id: number, delta: number) => {
+  26:     setCart(
+
+Arquivo no protótipo: src/app/components/PaymentScreen.tsx
+Comando para conferir: git show 273393c:src/app/components/PaymentScreen.tsx
+
+  15: 
+  16:   const delivery = 8.90;
+  17:   const total = cartTotal + delivery;
+  18: 
+  19:   const formatCard = (v: string) =>
+  20:     v.replace(/\D/g, "").slice(0, 16).replace(/(.{4})/g, "$1 ").trim();
+
+SEÇÃO 4 - Favoritos, Perfil e persistência
+Data de referência da etapa: 10/10/2026
+Problema e correção: O Perfil do protótipo mostrava nome, endereço e histórico fixos, e o botão Editar não tinha ação de salvamento. A correção passou a consultar a sessão e gravar as alterações no banco; foram acrescentados avatar de iniciais, indicadores reais, pedidos recentes e confirmação de saída. A persistência e os atalhos foram aprovados nas verificações de interface.
+
+Arquivo no protótipo: src/app/components/ProfileScreen.tsx
+Comando para conferir: git show 273393c:src/app/components/ProfileScreen.tsx
+
+   6: }
+   7: 
+   8: const ORDERS = [
+   9:   { id: "#SC-4872", date: "23 Mai 2026", items: "Rose Velvet x2, Golden Dream x1", total: "R$ 46,70", status: "Entregue" },
+  10:   { id: "#SC-4801", date: "18 Mai 2026", items: "Chocolate Noir x3", total: "R$ 47,70", status: "Entregue" },
+  11:   { id: "#SC-4756", date: "10 Mai 2026", items: "Pearl Dream x1, Lemon Zest x2", total: "R$ 44,90", status: "Entregue" },
+
+Arquivo no protótipo: src/app/components/ProfileScreen.tsx
+Comando para conferir: git show 273393c:src/app/components/ProfileScreen.tsx
+
+  38:           <h2 style={{ margin: 0, color: "#fff", fontSize: "20px", fontWeight: 700 }}>Meu Perfil</h2>
+  39:           <button style={{ background: "rgba(255,255,255,0.2)", border: "none", borderRadius: "10px", padding: "8px 12px", color: "#fff", fontSize: "13px", cursor: "pointer" }}>
+  40:             Editar
+  41:           </button>
+  42:         </div>
+  43: 
+
+Arquivo no protótipo: src/app/components/ProfileScreen.tsx
+Comando para conferir: git show 273393c:src/app/components/ProfileScreen.tsx
+
+  56:           </div>
+  57:           <div>
+  58:             <h3 style={{ margin: "0 0 3px", color: "#fff", fontSize: "20px", fontWeight: 700 }}>Ana Clara Santos</h3>
+  59:             <p style={{ margin: "0 0 6px", color: "rgba(255,255,255,0.8)", fontSize: "13px" }}>anaclarasantos@email.com</p>
+  60:             <div style={{ background: "rgba(255,255,255,0.2)", borderRadius: "10px", padding: "3px 10px", display: "inline-block" }}>
+  61:               <span style={{ color: "#fff", fontSize: "11px" }}>⭐ Cliente Premium</span>
+
+SEÇÃO 5 - Compra completa, histórico e rastreio
+Data de referência da etapa: 20/10/2026
+Problema e correção: No protótipo, confirmar a compra apenas mudava de tela; o rastreio tinha número fixo e avançava por temporizador. A correção grava a compra em transação e carrega os dados do pedido selecionado; o avanço agora é uma simulação explícita e persistida. Os testes de duplicidade, isolamento e limite do status passaram. Não foi registrada nova falha nesse fluxo final.
+
+Arquivo no protótipo: src/app/components/PaymentScreen.tsx
+Comando para conferir: git show 273393c:src/app/components/PaymentScreen.tsx
+
+ 192:         {/* Confirm button */}
+ 193:         <button
+ 194:           onClick={() => navigate("tracking")}
+ 195:           style={{
+ 196:             width: "100%", padding: "18px", borderRadius: "16px", border: "none",
+ 197:             background: "linear-gradient(135deg, #E8648C, #c2185b)",
+
+Arquivo no protótipo: src/app/components/TrackingScreen.tsx
+Comando para conferir: git show 273393c:src/app/components/TrackingScreen.tsx
+
+  18: 
+  19:   useEffect(() => {
+  20:     const timer = setInterval(() => {
+  21:       setCurrentStep((prev) => (prev < 3 ? prev + 1 : prev));
+  22:     }, 4000);
+  23:     return () => clearInterval(timer);
+
+Arquivo no protótipo: src/app/components/TrackingScreen.tsx
+Comando para conferir: git show 273393c:src/app/components/TrackingScreen.tsx
+
+  35:         <div style={{ flex: 1 }}>
+  36:           <h2 style={{ margin: 0, fontSize: "20px", fontWeight: 700, color: "#2D1B12" }}>Rastrear pedido</h2>
+  37:           <p style={{ margin: 0, fontSize: "12px", color: "#C4A882" }}>Pedido #SC-20240523-4872</p>
+  38:         </div>
+  39:       </div>
+  40: 

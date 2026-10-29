@@ -1,0 +1,18 @@
+{
+  "date": "2026-10-29",
+  "public_url": "https://sweetcupcrazy.maxwellgodhero.workers.dev",
+  "viewport": {"width": 390, "height": 844},
+  "origin": "Verificação técnica de interface pelo assistente, sem atribuição aos cinco participantes.",
+  "status": "PASS",
+  "checks": [
+    "Nome editado e confirmação de gravação na interface local",
+    "Endereço editado e recuperado após recarga local",
+    "Pedido correto aberto pelo histórico recente",
+    "Atalho de favoritos abre a lista da sessão",
+    "Confirmação de saída e cancelamento preservam a sessão",
+    "Entrada de demonstração e Perfil sem pedidos na publicação",
+    "Endereço salvo e recuperado após recarga na publicação",
+    "Revisão visual do Perfil em 390 x 844"
+  ],
+  "evidence": ["12_perfil_melhorado.jpg", "13_perfil_publico.jpg"]
+}

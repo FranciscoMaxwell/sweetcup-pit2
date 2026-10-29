@@ -5,6 +5,8 @@ Loja acadêmica de cupcakes com interface mobile React/Vite, back-end Python e b
 
 Aplicação publicada: [sweetcupcrazy.maxwellgodhero.workers.dev](https://sweetcupcrazy.maxwellgodhero.workers.dev). Consulte também [publicação e verificação](docs/07_publicacao.md).
 
+Resultados por etapa e capturas: [evidências dos cinco testes](https://sweetcupcrazy.maxwellgodhero.workers.dev/evidencias/index.html). As etapas usam as cinco datas de referência fornecidas pelo aluno; os registros de execução preservam suas datas originais. Os textos são verificações técnicas.
+
 ## Executar
 
 ```powershell

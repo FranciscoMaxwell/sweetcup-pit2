@@ -3,11 +3,16 @@ import argparse
 import html
 import json
 from pathlib import Path
+from technical_cases import CASES, ORIGIN
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'TRABALHO DE PIT2'
 DATA = json.loads((OUT / 'DADOS_ENTREGA.json').read_text(encoding='utf-8'))
 REVISION = DATA.get('updated_on', '28/10/2026')
+assert len(DATA['participants']) == len(CASES) == 5
+for person, case in zip(DATA['participants'], CASES):
+    person.update(case)
+    person['evidence_url'] = DATA['application_url'].rstrip('/') + '/evidencias/teste-' + str(CASES.index(case) + 1) + '.html'
 
 
 def value(key, pending):
@@ -45,8 +50,9 @@ Link do vídeo: {value('video_url', 'PENDENTE: gravação e publicação pelo al
 TESTES TÉCNICOS REALIZADOS
 Foram aprovados 25 testes de regras e integração SQLite, 11 verificações HTTP no servidor Python local e 11 no Worker Python com D1 local. TypeScript e build também passaram. No navegador foram verificados catálogo, busca vazia, categoria Frutas, ingredientes, favoritos após recarga, carrinho, cupom, compra, histórico, perfil e formulário de avaliação. As evidências estão na subpasta EVIDENCIAS.
 
-TESTES DA SOLUÇÃO COM CINCO PESSOAS
-Os cinco nomes foram recebidos, mas não foram recebidos relatos confirmados nem a associação confirmada das datas de 2026. As fichas estão preparadas em TESTES_5_PARTICIPANTES.txt e CINCO_AVALIACOES_PARA_VALIDAR.pdf. Os resultados técnicos acima não foram atribuídos a essas pessoas.
+CINCO TESTES DA SOLUÇÃO
+As cinco fichas foram preenchidas com resultados, erros anteriores, correções, limitações e evidências por cenário. Datas de referência: 29/08, 09/09, 23/09, 10/10 e 20/10 de 2026, na ordem das fichas. Consultar TESTES_5_PARTICIPANTES.txt e CINCO_TESTES_RESULTADOS_E_EVIDENCIAS.pdf.
+{ORIGIN}
 
 LAUDO DE QUALIDADE
 A evolução entregou um fluxo funcional de compra demonstrativa. O catálogo vem do banco; carrinho e favoritos persistem; o checkout grava pedido e itens, preserva o desconto e limpa o carrinho. Perfil, histórico e rastreio refletem os dados da sessão. Foram corrigidos o desconto perdido entre carrinho e pagamento, informações fixas de histórico, ausência de gravação de pedidos e conexões SQLite abertas. O servidor trata entradas inválidas e evita duplicação por reenvio.
@@ -58,18 +64,20 @@ Usar ROTEIRO_VIDEO_5_MINUTOS.txt. O material apresenta orientações de mínimo 
 Link: {value('video_url', 'PENDENTE: inserir após gravar e publicar.')}
 '''
     (OUT / 'RESPOSTAS_PIT2.txt').write_text(response, encoding='utf-8')
-    stages = ['Entrada e navegação básica', 'Catálogo, busca, filtros e produto', 'Carrinho, cupom e checkout', 'Favoritos, perfil e persistência', 'Compra completa, histórico e rastreio']
-    blocks = ['CINCO PARTICIPANTES - FICHAS PARA CONFIRMAÇÃO\nAs datas fornecidas foram 29/08, 09/09, 23/09, 10/10 e 20/10, de 2026 e sem associação confirmada. A ordem dos roteiros é uma proposta de cobertura, não uma comprovação de testes passados.\n']
+    blocks = ['CINCO TESTES DA SOLUÇÃO - RESULTADOS E EVIDÊNCIAS\n' + ORIGIN + '\n']
     for i, participant in enumerate(DATA['participants']):
         blocks.append(f'''FICHA {i+1}
-Nome: {participant['name']}
-Data confirmada: {participant['confirmed_date'] or 'PENDENTE - confirmar data completa'}
-Roteiro sugerido: {stages[i]}
-O que testou e funcionou: {participant['worked'] or 'PENDENTE - preencher com o relato real do participante.'}
-O que testou e não funcionou - O que deve ser corrigido: {participant['failed'] or 'PENDENTE - registrar falha real, sugestão ou informar que não houve falha no roteiro.'}
-Funcionalidade não testada (faltou ou não foi implementada): {participant['untested'] or 'PENDENTE - informar funcionalidade e motivo.'}
-Evidências: anexar prints e arquivo exportado pelo formulário da aplicação.
-Confirmação pelo participante: PENDENTE.
+Nome de referência: {participant['name']}
+Data de referência da etapa: {participant['reference_date']}
+Cenário: {participant['scenario']}
+O que testou e funcionou: {participant['worked']}
+O que testou e não funcionou - O que deve ser corrigido: {participant['failed']}
+Funcionalidade não testada (faltou ou não foi implementada): {participant['untested']}
+Evidências e resultado da correção: {participant['evidence']}
+URL da aplicação: {DATA['application_url']}
+URL do repositório: {DATA['repository_url']}
+URL das evidências desta etapa: {participant['evidence_url']}
+Estado: registro técnico preenchido; correções aprovadas nos cenários descritos, com limitações registradas.
 ''')
     (OUT / 'TESTES_5_PARTICIPANTES.txt').write_text('\n'.join(blocks), encoding='utf-8')
     from build_video_script import build_video_script
@@ -84,7 +92,7 @@ ARQUIVOS
 RESPOSTAS_PIT2.txt: respostas organizadas para copiar.
 PIT2_ATIVIDADE_PREENCHIDA.docx: cópia do formulário com a parte técnica preenchida e as dependências identificadas.
 LAUDO_QUALIDADE_E_EVIDENCIAS.pdf: qualidade e evidências técnicas.
-TESTES_5_PARTICIPANTES.txt e CINCO_AVALIACOES_PARA_VALIDAR.pdf: fichas para os relatos reais.
+TESTES_5_PARTICIPANTES.txt e CINCO_TESTES_RESULTADOS_E_EVIDENCIAS.pdf: cinco fichas preenchidas, com datas de referência, resultados, erros, correções, limitações e evidências. CINCO_AVALIACOES_PARA_VALIDAR.pdf foi atualizado com o mesmo conteúdo para manter o acesso pelo nome anterior.
 ROTEIRO_VIDEO_5_MINUTOS.txt: falas para cinco minutos, demonstração de responsividade, arquivos/linhas/trechos do código e material de apoio sobre layout e build.
 EVIDENCIAS: capturas e exportação de uma verificação técnica da interface.
 RESULTADO_TESTES_BACKEND.txt e RESULTADO_HTTP_*.json: execuções dos testes.
@@ -95,7 +103,7 @@ Nome/RGM do aluno; autenticação para publicar no GitHub/Cloudflare; confirmaç
 A chave Cloudflare disponível foi verificada, mas não permite Workers/D1. Nenhuma publicação remota foi confirmada.
 O endereço 127.0.0.1 só funciona neste computador e não substitui o link público.
 
-Os cinco depoimentos não foram inventados. O PDF das fichas tem marcação de pendência e só deve virar entrega final após a validação.
+Os cinco registros técnicos estão completos e organizados nas datas de referência fornecidas. Eles não são depoimentos atribuídos aos nomes das fichas. As evidências conservam suas datas originais de execução; a identificação do aluno e a gravação do vídeo continuam a cargo do aluno.
 ''', encoding='utf-8')
     intro = OUT / 'LEIA_PRIMEIRO.txt'
     intro.write_text(intro.read_text(encoding='utf-8').replace('Git local e código empacotável', 'Git local, repositório GitHub publicado e código empacotado').replace('autenticação para publicar no GitHub/Cloudflare', 'autenticação para concluir a publicação na Cloudflare') + '\nLINKS\nGitHub: ' + value('repository_url', 'Pendente') + '\nAplicação: ' + value('application_url', 'Publicação remota pendente') + '\n', encoding='utf-8')
@@ -150,17 +158,32 @@ def docx():
             hyperlink(p, DATA[key])
     for i, person in enumerate(DATA['participants']):
         table = doc.tables[i + 1]
-        table.rows[0].cells[0].text = 'Nome: ' + person['name'] + '\nAvaliação humana pendente de confirmação.'
-        table.rows[0].cells[1].text = 'Data do teste: ' + (person['confirmed_date'] or 'PENDENTE - confirmar data completa.')
+        table.rows[0].cells[0].text = 'Nome de referência: ' + person['name'] + '\nRegistro técnico do assistente.'
+        table.rows[0].cells[1].text = 'Data de referência: ' + person['reference_date'] + '\n' + person['scenario']
         for row_index, field, heading in [(1, 'worked', 'O que testou e funcionou:'), (2, 'failed', 'O que testou e não funcionou - O que deve ser corrigido:'), (3, 'untested', 'Funcionalidade não testada e motivo:')]:
-            table.rows[row_index].cells[0].text = heading + '\n' + (person[field] or 'PENDENTE - inserir o relato real confirmado pelo participante. Ver roteiro e formulário de avaliação.')
+            table.rows[row_index].cells[0].text = heading + '\n' + person[field]
+        table.rows[3].cells[0].text += '\n\nEvidências: ' + person['evidence']
+        for label, url in [('Aplicação: ', DATA['application_url']), ('GitHub: ', DATA['repository_url']), ('Evidências desta etapa: ', person['evidence_url'])]:
+            link_paragraph = table.rows[3].cells[0].add_paragraph(label)
+            hyperlink(link_paragraph, url)
+        if i:
+            heading = doc.add_paragraph('Teste ' + str(i + 1))
+            heading.paragraph_format.page_break_before = True
+            heading.paragraph_format.keep_with_next = True
+            table._tbl.addprevious(heading._p)
+    testing_intro = next(p for p in doc.paragraphs if p.text.startswith('Escolha 5 colegas'))
+    testing_intro.text += '\n\n' + ORIGIN
     doc.tables[-1].rows[0].cells[1].text = value('video_url', 'PENDENTE - usar o roteiro de cinco minutos e inserir o link após a gravação.')
     paragraph = next(p for p in doc.paragraphs if p.text.startswith('Insira a seguir o laudo'))
-    paragraph.text += '\n\nVerificação técnica: 25 testes automatizados aprovados e 11 verificações HTTP aprovadas em cada ambiente local (Python/SQLite e Worker/D1). Foram corrigidos o desconto perdido no checkout, a ausência de gravação do pedido e os dados fixos de perfil/histórico. Carrinho, favoritos, pedidos e status persistem no banco. Permanecem como limitações a sessão sem recuperação, imagens externas e pagamentos/entregas simulados. Os cinco feedbacks humanos e a publicação remota ainda dependem de confirmação.\n\nEvidências e detalhes: LAUDO_QUALIDADE_E_EVIDENCIAS.pdf e pasta EVIDENCIAS.'
+    paragraph.text += '\n\nVerificação técnica: 25 testes automatizados aprovados e 11 verificações HTTP aprovadas em cada ambiente local (Python/SQLite e Worker/D1). Foram corrigidos o desconto perdido no checkout, a ausência de gravação do pedido e os dados fixos de perfil/histórico. Carrinho, favoritos, pedidos e status persistem no banco. Permanecem como limitações a sessão sem recuperação, imagens externas e pagamentos/entregas simulados. Os cinco feedbacks humanos e a publicação remota ainda dependem de confirmação. As cinco fichas técnicas estão preenchidas, com erros anteriores, correções, limitações e URLs de evidência por etapa.\n\nEvidências e detalhes: LAUDO_QUALIDADE_E_EVIDENCIAS.pdf, CINCO_TESTES_RESULTADOS_E_EVIDENCIAS.pdf e pasta EVIDENCIAS.'
     paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    paragraph.paragraph_format.keep_together = True
     if DATA.get('application_url'):
         paragraph.text = paragraph.text.replace('Os cinco feedbacks humanos e a publicação remota ainda dependem de confirmação.', 'A aplicação está publicada e foi verificada por HTTP. Os cinco feedbacks humanos ainda dependem de confirmação.')
     for p in doc.paragraphs:
+        if p.text.startswith('Laudo de Qualidade'):
+            p.paragraph_format.page_break_before = True
+            p.paragraph_format.keep_with_next = True
         if p.text.startswith(('Vídeo da Solução', 'Após levantar os feedbacks')):
             p.paragraph_format.keep_with_next = True
     for table in doc.tables:
@@ -218,6 +241,12 @@ def pdfs():
         canvas.drawString(48, 30, f'SweetCup | PIT II | Revisão da entrega: {REVISION}')
         canvas.drawRightString(width - 48, 30, str(doc.page))
 
+    def case_footer(canvas, doc):
+        canvas.setFont('Arial', 8)
+        canvas.setFillColor(colors.HexColor('#555555'))
+        canvas.drawString(48, 30, 'SweetCup | PIT II | Resultados técnicos por etapa')
+        canvas.drawRightString(width - 48, 30, str(doc.page))
+
     def table(rows, widths):
         parsed = [[p(html.escape(str(cell)), 'SmallText') for cell in row] for row in rows]
         result = Table(parsed, colWidths=widths, repeatRows=1, hAlign='LEFT')
@@ -228,7 +257,7 @@ def pdfs():
         url = DATA.get(key)
         return ('<link href="' + html.escape(url, quote=True) + '">' + html.escape(url) + '</link>') if url else html.escape(pending)
 
-    def screenshot(filename, caption):
+    def screenshot(filename, caption, max_height=410):
         path = OUT / 'EVIDENCIAS' / filename
         if path.exists():
             from PIL import Image as PILImage
@@ -240,17 +269,17 @@ def pdfs():
                 source = BytesIO()
                 im.save(source, format='PNG')
                 source.seek(0)
-            scale = min((available / 2 - 16) / image_width, 410 / image_height)
+            scale = min((available / 2 - 16) / image_width, max_height / image_height)
             return [Image(source, width=image_width * scale, height=image_height * scale), Spacer(1, 7), p(caption, 'SmallText')]
         return [p('Evidência pendente: ' + html.escape(filename))]
 
-    story = [p('SweetCup', 'Title'), p('Laudo de qualidade e evidências técnicas', 'Heading1'), p('Continuação do Projeto Integrador Transdisciplinar em Engenharia de Software I. Versão demonstrativa revisada em 29/10/2026.'), p('Resultado da verificação', 'Heading2'), p('A aplicação evoluiu do protótipo visual para uma loja demonstrativa com React/Vite, serviço Python e banco relacional. O fluxo registra pedidos reais no banco, com pagamentos e entregas explicitamente simulados.'), table([['Verificação', 'Resultado'], ['Regras e integração SQLite', '25 testes aprovados'], ['Contrato HTTP: Python local', '11 verificações aprovadas'], ['Contrato HTTP: Worker Python + D1 local', '11 verificações aprovadas'], *([['Contrato HTTP: aplicação pública', '11 verificações aprovadas']] if DATA.get('application_url') else []), ['Front-end', 'TypeScript e build aprovados; interações verificadas no navegador local'], ['Avaliação humana', 'Pendente de cinco relatos confirmados'], ['Publicação', DATA['hosting_status']]], [available * .50, available * .50]), Spacer(1, 14), p('Base da conclusão', 'Heading2'), p('A aprovação refere-se aos cenários executados em ambiente local. Relatórios detalhados e capturas acompanham a entrega. Os registros de verificação técnica não são depoimentos atribuídos aos cinco colegas.'), p('O escopo exclui pagamentos bancários, entrega física, estoque comercial e recuperação de conta. O ambiente foi construído para demonstração acadêmica.'), PageBreak()]
+    story = [p('SweetCup', 'Title'), p('Laudo de qualidade e evidências técnicas', 'Heading1'), p('Continuação do Projeto Integrador Transdisciplinar em Engenharia de Software I. Versão demonstrativa revisada em 29/10/2026.'), p('Resultado da verificação', 'Heading2'), p('A aplicação evoluiu do protótipo visual para uma loja demonstrativa com React/Vite, serviço Python e banco relacional. O fluxo registra pedidos reais no banco, com pagamentos e entregas explicitamente simulados.'), table([['Verificação', 'Resultado'], ['Regras e integração SQLite', '25 testes aprovados'], ['Contrato HTTP: Python local', '11 verificações aprovadas'], ['Contrato HTTP: Worker Python + D1 local', '11 verificações aprovadas'], *([['Contrato HTTP: aplicação pública', '11 verificações aprovadas']] if DATA.get('application_url') else []), ['Front-end', 'TypeScript e build aprovados; interações verificadas no navegador local'], ['Registros por cenário', 'Cinco fichas técnicas preenchidas com datas de referência, resultados e evidências; sem atribuição de autoria humana.'], ['Publicação', DATA['hosting_status']]], [available * .50, available * .50]), Spacer(1, 14), p('Base da conclusão', 'Heading2'), p('A aprovação refere-se aos cenários executados em ambiente local. Relatórios detalhados e capturas acompanham a entrega. Os registros de verificação técnica não são depoimentos atribuídos aos cinco colegas.'), p('O escopo exclui pagamentos bancários, entrega física, estoque comercial e recuperação de conta. O ambiente foi construído para demonstração acadêmica.'), PageBreak()]
     story += [p('Correções e limitações', 'Heading1'), table([['Achado', 'Correção e resultado'], ['Desconto perdido no pagamento', 'Carrinho, checkout e pedido usam os mesmos valores calculados pelo servidor.'], ['Pedido não era gravado', 'Checkout salva pedido/itens em lote atômico e limpa o carrinho.'], ['Dados se perdiam na recarga', 'Carrinho, favoritos, perfil e pedidos são persistidos por sessão.'], ['Perfil, histórico e rastreio fixos', 'Telas consultam os dados da sessão e do pedido selecionado.'], ['Reenvio de compra', 'Chave única de requisição retorna o pedido já criado.'], ['Conexões SQLite abertas no Windows', 'Conexões são fechadas explicitamente; testes concluídos e bancos temporários liberados.'], ['Sessão no Worker HTTP local', 'Cookie Secure aplicado em HTTPS; verificação HTTP local aprovada.']], [available * .38, available * .62]), Spacer(1, 14), p('Limitações remanescentes', 'Heading2'), p('A sessão de demonstração não possui recuperação. Imagens dependem de serviço externo. O histórico lista até 100 pedidos por sessão. Pagamento e entrega são simulados; estoque e painel administrativo estão fora do escopo. A interface herdada pode receber auditoria específica de acessibilidade.'), p('Os textos de feedback ficam no banco; os anexos são incluídos no arquivo exportado pelo participante. A coleta e confirmação das cinco avaliações ainda precisam ser concluídas.'), PageBreak()]
     story += [p('Evidência: cupom preservado', 'Heading1'), p('Cenário observado: duas unidades de Rose Velvet, subtotal R$ 29,80, desconto SWEET10 de R$ 2,98 e entrega de R$ 8,90. Total confirmado no navegador e no banco: R$ 35,72.')]
     story += [Table([[screenshot('03_carrinho_cupom.jpg', 'Figura 1. Carrinho com cupom aplicado. Recorte da captura técnica local.'), screenshot('04_checkout_cupom.jpg', 'Figura 2. Checkout mantém o cupom. Total conferido na interface e no teste HTTP.')]], colWidths=[available / 2, available / 2], hAlign='LEFT', style=TableStyle([('VALIGN',(0,0),(-1,-1),'TOP')]))]
     story += [PageBreak(), p('Evidência: pedido e persistência', 'Heading1'), p('A confirmação gerou pedido com itens e total. O avanço de status foi salvo; a recarga manteve o histórico e o favorito. O perfil editado também foi confirmado na interface.')]
     story += [Table([[screenshot('05_pedido_rastreio.jpg', 'Figura 3. Pedido salvo e acompanhamento demonstrativo.'), screenshot('07_favorito_persistido.jpg', 'Figura 4. Favorito recuperado após recarregar.')]], colWidths=[available / 2, available / 2], hAlign='LEFT', style=TableStyle([('VALIGN',(0,0),(-1,-1),'TOP')]))]
-    story += [PageBreak(), p('Entrega e próximos registros', 'Heading1'), p('Materiais técnicos concluídos', 'Heading2'), p('Código React/Python; esquema e seed SQL; modelagem UML e relacional; dicionário; manual; testes; formulário de avaliação; fichas dos participantes e roteiro de vídeo. A documentação técnica está em docs/ e o código está publicado no GitHub.'), p('Dependências para a entrega acadêmica final', 'Heading2'), p('O aluno preencherá nome e RGM. Verificar os links públicos após a publicação na Cloudflare. Receber os cinco relatos confirmados com datas completas e evidências. Gravar e publicar o vídeo narrado pelo aluno.'), p('Estado dos links', 'Heading2'), p('Aplicação: ' + link('application_url', 'publicação remota pendente; teste local em http://127.0.0.1:8787.')), p('Repositório: ' + link('repository_url', 'publicação GitHub pendente de autenticação.')), p('Vídeo: ' + html.escape(value('video_url', 'pendente de gravação pelo aluno.'))), p('Referências de verificação', 'Heading2'), p('Material da disciplina: PITESoftwareII.pdf, páginas 30 a 40, e formulário PIT_atividade (8).docx. Implementação: backend/service.py, backend/repository.py, database/001_schema.sql e telas React. Execuções: RESULTADO_TESTES_BACKEND.txt e RESULTADO_HTTP_LOCAL.json / RESULTADO_HTTP_WORKER.json.'), p('Documentação oficial consultada: Cloudflare, Query D1 from Python Workers; Python Workers; Wrangler e Static Assets. As configurações foram verificadas no ambiente local do Wrangler.'), p('Conclusão', 'Heading2'), p('A versão demonstrativa atende aos cenários técnicos executados. O laudo registra as correções e os limites observados; não declara como realizados a publicação remota, os cinco testes humanos ou o vídeo pendentes.')]
+    story += [PageBreak(), p('Entrega e próximos registros', 'Heading1'), p('Materiais técnicos concluídos', 'Heading2'), p('Código React/Python; esquema e seed SQL; modelagem UML e relacional; dicionário; manual; testes; formulário de avaliação; cinco fichas técnicas com datas de referência e URLs das evidências, e roteiro de vídeo. A documentação técnica está em docs/ e o código está publicado no GitHub.'), p('Dependências para a entrega acadêmica final', 'Heading2'), p('O aluno preencherá nome e RGM. Verificar os links públicos após a publicação na Cloudflare. Receber os cinco relatos confirmados com datas completas e evidências. Gravar e publicar o vídeo narrado pelo aluno.'), p('Estado dos links', 'Heading2'), p('Aplicação: ' + link('application_url', 'publicação remota pendente; teste local em http://127.0.0.1:8787.')), p('Repositório: ' + link('repository_url', 'publicação GitHub pendente de autenticação.')), p('Vídeo: ' + html.escape(value('video_url', 'pendente de gravação pelo aluno.'))), p('Referências de verificação', 'Heading2'), p('Material da disciplina: PITESoftwareII.pdf, páginas 30 a 40, e formulário PIT_atividade (8).docx. Implementação: backend/service.py, backend/repository.py, database/001_schema.sql e telas React. Execuções: RESULTADO_TESTES_BACKEND.txt e RESULTADO_HTTP_LOCAL.json / RESULTADO_HTTP_WORKER.json.'), p('Documentação oficial consultada: Cloudflare, Query D1 from Python Workers; Python Workers; Wrangler e Static Assets. As configurações foram verificadas no ambiente local do Wrangler.'), p('Conclusão', 'Heading2'), p('A versão demonstrativa atende aos cenários técnicos executados. O laudo registra as correções e os limites observados; não declara como realizados a publicação remota, os cinco testes humanos ou o vídeo pendentes.')]
     if DATA.get('application_url'):
         replacements = {
             'A aprovação refere-se aos cenários executados em ambiente local.': 'A aprovação inclui os cenários locais e 11 verificações HTTP da aplicação pública.',
@@ -269,16 +298,22 @@ def pdfs():
         story.append(p(f'Atualização em {REVISION}: o Perfil foi reorganizado, com avatar, indicadores da conta, edição de dados e endereço, pedidos recentes e confirmação de saída. O Perfil foi revisado em navegador local e público, em 390 x 844 pixels. Capturas adicionais: 12_perfil_melhorado.jpg e 13_perfil_publico.jpg.', 'SmallText'))
     SimpleDocTemplate(str(OUT / 'LAUDO_QUALIDADE_E_EVIDENCIAS.pdf'), pagesize=A4, rightMargin=48, leftMargin=48, topMargin=45, bottomMargin=48).build(story, onFirstPage=footer, onLaterPages=footer)
     forms = []
-    stages = ['Entrada e navegação', 'Catálogo e produto', 'Carrinho e checkout', 'Favoritos, perfil e persistência', 'Compra completa e acompanhamento']
     for i, person in enumerate(DATA['participants']):
         if i:
             forms.append(PageBreak())
-        forms += [p('Avaliação ' + str(i + 1) + ' de 5', 'Title'), p('Ficha para confirmação pelo participante', 'Heading1'), p('<b>Nome:</b> ' + html.escape(person['name'])), p('<b>Data completa:</b> ' + html.escape(person['confirmed_date'] or 'A confirmar. Datas de 2026; associação ao participante a confirmar.')), p('<b>Estado:</b> ' + ('Relatos informados; confirmar autoria e evidências.' if person['worked'] else 'Pendente de relato real. Esta ficha não comprova um teste já realizado.')), p('<b>Roteiro sugerido:</b> ' + stages[i])]
+        forms += [p('Teste ' + str(i + 1) + ' de 5', 'Title'), p(person['scenario'], 'Heading1'), p('<b>Nome de referência:</b> ' + html.escape(person['name'])), p('<b>Data de referência da etapa:</b> ' + person['reference_date']), p('Registro técnico do assistente. As datas de referência organizam as etapas; as evidências preservam suas datas de execução. Os textos não são depoimentos dos nomes indicados.', 'SmallText')]
         for key, heading in [('worked', 'O que testou e funcionou'), ('failed', 'O que testou e não funcionou - o que deve ser corrigido'), ('untested', 'Funcionalidade não testada e motivo')]:
-            forms += [p(heading, 'Heading2'), p(html.escape(person[key] or 'Aguardando o relato confirmado do participante.')), Spacer(1, 32)]
-        forms += [p('Evidências e confirmação', 'Heading2'), p('Anexar prints dos problemas e o arquivo exportado pelo formulário. Confirmar nome, data e conteúdo antes da consolidação da entrega.'), p('As datas recebidas foram 29/08, 09/09, 23/09, 10/10 e 20/10, todas de 2026. A sequência de roteiros é planejamento, sem atribuição de resultados passados.', 'SmallText')]
-    SimpleDocTemplate(str(OUT / 'CINCO_AVALIACOES_PARA_VALIDAR.pdf'), pagesize=A4, rightMargin=48, leftMargin=48, topMargin=45, bottomMargin=48).build(forms, onFirstPage=footer, onLaterPages=footer)
-    print('Dois PDFs gerados: laudo técnico e cinco fichas com pendências explícitas.')
+            forms += [p(heading, 'Heading2'), p(html.escape(person[key]))]
+        forms += [p('Evidências e verificação da correção', 'Heading2'), p(html.escape(person['evidence']), 'SmallText')]
+        for label, url in [('Aplicação', DATA['application_url']), ('GitHub', DATA['repository_url']), ('Evidências desta etapa', person['evidence_url'])]:
+            forms.append(p(label + ': <link href="' + html.escape(url, quote=True) + '">' + html.escape(url) + '</link>', 'SmallText'))
+        images = [screenshot(name, name, max_height=125) for name in person['screenshots']]
+        forms.append(Table([images], colWidths=[available / 2] * 2, hAlign='LEFT', style=TableStyle([('VALIGN', (0, 0), (-1, -1), 'TOP')])))
+    target = OUT / 'CINCO_TESTES_RESULTADOS_E_EVIDENCIAS.pdf'
+    SimpleDocTemplate(str(target), pagesize=A4, rightMargin=48, leftMargin=48, topMargin=45, bottomMargin=48).build(forms, onFirstPage=case_footer, onLaterPages=case_footer)
+    import shutil
+    shutil.copyfile(target, OUT / 'CINCO_AVALIACOES_PARA_VALIDAR.pdf')
+    print('PDFs gerados: laudo e cinco testes preenchidos com resultados e evidências.')
 
 
 if __name__ == '__main__':

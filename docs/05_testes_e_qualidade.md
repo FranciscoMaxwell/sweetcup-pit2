@@ -30,3 +30,17 @@ O ambiente usa clientes de demonstração, sem recuperação de conta. As imagen
 No formulário de avaliação, anexos permanecem no arquivo exportado pelo navegador; os textos ficam no banco. O aluno deve recolher esses arquivos e confirmar nome/data/resultados de cada participante antes de consolidar o PDF final das cinco opiniões.
 
 O aceite técnico local não confirma hospedagem pública nem aprovação pelo tutor. Esses estados devem ser registrados com suas evidências próprias.
+
+## Cinco registros por etapa
+
+As cinco fichas da entrega estão preenchidas com o que funcionou, problema do protótipo, correção verificada, limitações e URLs das evidências. Os resultados são técnicos; as datas abaixo são referências de organização informadas pelo aluno e não alteram a data original de execução dos relatórios ou capturas.
+
+| Data de referência | Etapa e evidências públicas |
+|---|---|
+| 29/08/2026 | [Entrada e navegação](https://sweetcupcrazy.maxwellgodhero.workers.dev/evidencias/teste-1.html) |
+| 09/09/2026 | [Catálogo e produto](https://sweetcupcrazy.maxwellgodhero.workers.dev/evidencias/teste-2.html) |
+| 23/09/2026 | [Carrinho e checkout](https://sweetcupcrazy.maxwellgodhero.workers.dev/evidencias/teste-3.html) |
+| 10/10/2026 | [Favoritos e Perfil](https://sweetcupcrazy.maxwellgodhero.workers.dev/evidencias/teste-4.html) |
+| 20/10/2026 | [Compra, histórico e rastreio](https://sweetcupcrazy.maxwellgodhero.workers.dev/evidencias/teste-5.html) |
+
+O código do protótipo foi preservado no commit `273393c`. A comparação do código identifica o cálculo do pagamento sem desconto, os dados fixos do Perfil e o rastreio por temporizador. As capturas publicadas mostram a versão corrigida; os testes registram a verificação das correções.

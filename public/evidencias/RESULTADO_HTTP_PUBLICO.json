@@ -1,0 +1,52 @@
+{
+  "executed_at": "2026-10-29T02:59:54.748406+00:00",
+  "base_url": "https://sweetcupcrazy.maxwellgodhero.workers.dev",
+  "checks": [
+    {
+      "test": "Saúde da API Python",
+      "status": "PASS"
+    },
+    {
+      "test": "Sessão e catálogo com oito produtos",
+      "status": "PASS"
+    },
+    {
+      "test": "Carrinho persistente com duas unidades",
+      "status": "PASS"
+    },
+    {
+      "test": "Total com cupom calculado pelo servidor",
+      "status": "PASS"
+    },
+    {
+      "test": "Favorito persistido",
+      "status": "PASS"
+    },
+    {
+      "test": "Pedido salvo com desconto e carrinho esvaziado",
+      "status": "PASS"
+    },
+    {
+      "test": "Reenvio da compra sem duplicidade",
+      "status": "PASS"
+    },
+    {
+      "test": "Status demonstrativo persistido",
+      "status": "PASS"
+    },
+    {
+      "test": "Perfil editado persistido",
+      "status": "PASS"
+    },
+    {
+      "test": "Quantidade inválida recebe erro tratado",
+      "status": "PASS"
+    },
+    {
+      "test": "Logout invalida acesso",
+      "status": "PASS"
+    }
+  ],
+  "total": 11,
+  "status": "PASS"
+}

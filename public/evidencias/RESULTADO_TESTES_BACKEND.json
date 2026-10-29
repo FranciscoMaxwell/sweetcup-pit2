@@ -1,0 +1,32 @@
+{
+  "origin": "Resumo do relatório técnico original preservado na entrega",
+  "status": "PASS",
+  "total": 25,
+  "tests": [
+    "test_cent_rounding",
+    "test_cookie_flags",
+    "test_foreign_origin_rejected",
+    "test_malformed_and_oversized_json",
+    "test_atomic_database_batch_rolls_back_on_failure",
+    "test_cart_persists_when_service_restarts",
+    "test_catalog_has_eight_seeded_products",
+    "test_changed_cart_version_prevents_stale_checkout",
+    "test_checkout_ignores_prices_sent_by_client",
+    "test_checkout_keeps_discount_and_clears_cart",
+    "test_coupon_recalculates_when_quantity_changes",
+    "test_empty_cart_and_invalid_checkout_rejected",
+    "test_favorites_are_saved_and_can_be_removed",
+    "test_feedback_requires_actual_fields_and_exports_only_own",
+    "test_invalid_coupon_does_not_change_previous_quote",
+    "test_invalid_product_rejected",
+    "test_logout_invalidates_session",
+    "test_order_and_favorites_are_isolated_between_clients",
+    "test_profile_is_saved",
+    "test_quantity_rejects_negative_fraction_boolean_and_limit",
+    "test_remove_coupon",
+    "test_remove_last_item_clears_total_and_delivery",
+    "test_repeated_purchase_request_creates_one_order",
+    "test_simulated_status_stops_at_delivered",
+    "test_unknown_or_expired_session_rejected"
+  ]
+}

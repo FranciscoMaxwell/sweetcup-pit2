@@ -1,0 +1,27 @@
+{
+  "date": "2026-10-28",
+  "origin": "Verificação técnica do assistente no navegador; não é avaliação dos cinco participantes.",
+  "base_url": "http://127.0.0.1:8787",
+  "status": "PASS",
+  "checks": [
+    "Entrada de demonstração e catálogo consultado do banco",
+    "Busca por nome inexistente mostra estado vazio",
+    "Categoria Frutas mostra Strawberry Kiss e Lemon Zest",
+    "Ingredientes de Strawberry Kiss consultados do banco",
+    "Favorito salvo e recuperado após recarregar",
+    "Duas unidades de Rose Velvet no carrinho",
+    "SWEET10 aplica R$ 2,98 de desconto, total R$ 35,72",
+    "Checkout mantém cupom e total R$ 35,72",
+    "Compra cria pedido e limpa carrinho",
+    "Avanço demonstrativo de status salva Em preparo",
+    "Recarga mantém pedido e favorito",
+    "Perfil editado e confirmação de gravação",
+    "Formulário registra avaliação técnica com campos obrigatórios",
+    "Arquivo de exportação contém texto e uma imagem anexada",
+    "Interface verificada em 390 x 844 pixels"
+  ],
+  "limits": [
+    "O evento automatizado de download no navegador integrado expirou; o payload do link de exportação foi inspecionado e salvo como evidência.",
+    "Publicação remota e validação humana são verificações separadas."
+  ]
+}
