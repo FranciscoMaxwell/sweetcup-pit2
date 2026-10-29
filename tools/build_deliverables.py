@@ -7,6 +7,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'TRABALHO DE PIT2'
 DATA = json.loads((OUT / 'DADOS_ENTREGA.json').read_text(encoding='utf-8'))
+REVISION = DATA.get('updated_on', '28/10/2026')
 
 
 def value(key, pending):
@@ -22,7 +23,7 @@ def line(path, needle):
 
 def texts():
     response = f'''SWEETCUP - RESPOSTAS PARA A ATIVIDADE DO PIT II
-Versão técnica verificada em 28/10/2026.
+Versão da entrega revisada em {REVISION}.
 Nome: {value('student_name', 'PENDENTE: informar nome completo do aluno')}
 RGM: {value('rgm', 'PENDENTE: informar RGM')}
 
@@ -263,7 +264,7 @@ def pdfs():
     def footer(canvas, doc):
         canvas.setFont('Arial', 8)
         canvas.setFillColor(colors.HexColor('#555555'))
-        canvas.drawString(48, 30, 'SweetCup | PIT II | Verificação técnica de 28/10/2026')
+        canvas.drawString(48, 30, f'SweetCup | PIT II | Revisão da entrega: {REVISION}')
         canvas.drawRightString(width - 48, 30, str(doc.page))
 
     def table(rows, widths):
@@ -292,7 +293,7 @@ def pdfs():
             return [Image(source, width=image_width * scale, height=image_height * scale), Spacer(1, 7), p(caption, 'SmallText')]
         return [p('Evidência pendente: ' + html.escape(filename))]
 
-    story = [p('SweetCup', 'Title'), p('Laudo de qualidade e evidências técnicas', 'Heading1'), p('Continuação do Projeto Integrador Transdisciplinar em Engenharia de Software I. Versão demonstrativa verificada em 28/10/2026.'), p('Resultado da verificação', 'Heading2'), p('A aplicação evoluiu do protótipo visual para uma loja demonstrativa com React/Vite, serviço Python e banco relacional. O fluxo registra pedidos reais no banco, com pagamentos e entregas explicitamente simulados.'), table([['Verificação', 'Resultado'], ['Regras e integração SQLite', '25 testes aprovados'], ['Contrato HTTP: Python local', '11 verificações aprovadas'], ['Contrato HTTP: Worker Python + D1 local', '11 verificações aprovadas'], *([['Contrato HTTP: aplicação pública', '11 verificações aprovadas']] if DATA.get('application_url') else []), ['Front-end', 'TypeScript e build aprovados; interações verificadas no navegador local'], ['Avaliação humana', 'Pendente de cinco relatos confirmados'], ['Publicação', DATA['hosting_status']]], [available * .50, available * .50]), Spacer(1, 14), p('Base da conclusão', 'Heading2'), p('A aprovação refere-se aos cenários executados em ambiente local. Relatórios detalhados e capturas acompanham a entrega. Os registros de verificação técnica não são depoimentos atribuídos aos cinco colegas.'), p('O escopo exclui pagamentos bancários, entrega física, estoque comercial e recuperação de conta. O ambiente foi construído para demonstração acadêmica.'), PageBreak()]
+    story = [p('SweetCup', 'Title'), p('Laudo de qualidade e evidências técnicas', 'Heading1'), p('Continuação do Projeto Integrador Transdisciplinar em Engenharia de Software I. Versão demonstrativa revisada em 29/10/2026.'), p('Resultado da verificação', 'Heading2'), p('A aplicação evoluiu do protótipo visual para uma loja demonstrativa com React/Vite, serviço Python e banco relacional. O fluxo registra pedidos reais no banco, com pagamentos e entregas explicitamente simulados.'), table([['Verificação', 'Resultado'], ['Regras e integração SQLite', '25 testes aprovados'], ['Contrato HTTP: Python local', '11 verificações aprovadas'], ['Contrato HTTP: Worker Python + D1 local', '11 verificações aprovadas'], *([['Contrato HTTP: aplicação pública', '11 verificações aprovadas']] if DATA.get('application_url') else []), ['Front-end', 'TypeScript e build aprovados; interações verificadas no navegador local'], ['Avaliação humana', 'Pendente de cinco relatos confirmados'], ['Publicação', DATA['hosting_status']]], [available * .50, available * .50]), Spacer(1, 14), p('Base da conclusão', 'Heading2'), p('A aprovação refere-se aos cenários executados em ambiente local. Relatórios detalhados e capturas acompanham a entrega. Os registros de verificação técnica não são depoimentos atribuídos aos cinco colegas.'), p('O escopo exclui pagamentos bancários, entrega física, estoque comercial e recuperação de conta. O ambiente foi construído para demonstração acadêmica.'), PageBreak()]
     story += [p('Correções e limitações', 'Heading1'), table([['Achado', 'Correção e resultado'], ['Desconto perdido no pagamento', 'Carrinho, checkout e pedido usam os mesmos valores calculados pelo servidor.'], ['Pedido não era gravado', 'Checkout salva pedido/itens em lote atômico e limpa o carrinho.'], ['Dados se perdiam na recarga', 'Carrinho, favoritos, perfil e pedidos são persistidos por sessão.'], ['Perfil, histórico e rastreio fixos', 'Telas consultam os dados da sessão e do pedido selecionado.'], ['Reenvio de compra', 'Chave única de requisição retorna o pedido já criado.'], ['Conexões SQLite abertas no Windows', 'Conexões são fechadas explicitamente; testes concluídos e bancos temporários liberados.'], ['Sessão no Worker HTTP local', 'Cookie Secure aplicado em HTTPS; verificação HTTP local aprovada.']], [available * .38, available * .62]), Spacer(1, 14), p('Limitações remanescentes', 'Heading2'), p('A sessão de demonstração não possui recuperação. Imagens dependem de serviço externo. O histórico lista até 100 pedidos por sessão. Pagamento e entrega são simulados; estoque e painel administrativo estão fora do escopo. A interface herdada pode receber auditoria específica de acessibilidade.'), p('Os textos de feedback ficam no banco; os anexos são incluídos no arquivo exportado pelo participante. A coleta e confirmação das cinco avaliações ainda precisam ser concluídas.'), PageBreak()]
     story += [p('Evidência: cupom preservado', 'Heading1'), p('Cenário observado: duas unidades de Rose Velvet, subtotal R$ 29,80, desconto SWEET10 de R$ 2,98 e entrega de R$ 8,90. Total confirmado no navegador e no banco: R$ 35,72.')]
     story += [Table([[screenshot('03_carrinho_cupom.jpg', 'Figura 1. Carrinho com cupom aplicado. Recorte da captura técnica local.'), screenshot('04_checkout_cupom.jpg', 'Figura 2. Checkout mantém o cupom. Total conferido na interface e no teste HTTP.')]], colWidths=[available / 2, available / 2], hAlign='LEFT', style=TableStyle([('VALIGN',(0,0),(-1,-1),'TOP')]))]
@@ -314,7 +315,7 @@ def pdfs():
                 flowable = Paragraph(content, flowable.style)
             revised.append(flowable)
         story = revised
-        story.append(p('Limite de verificação visual: o site público foi testado por HTTP. A revisão visual foi realizada no ambiente local; o controle do navegador público foi interrompido por não conseguir identificar a URL com segurança.', 'SmallText'))
+        story.append(p(f'Atualização em {REVISION}: o Perfil foi reorganizado, com avatar, indicadores da conta, edição de dados e endereço, pedidos recentes e confirmação de saída. O Perfil foi revisado em navegador local e público, em 390 x 844 pixels. Capturas adicionais: 12_perfil_melhorado.jpg e 13_perfil_publico.jpg.', 'SmallText'))
     SimpleDocTemplate(str(OUT / 'LAUDO_QUALIDADE_E_EVIDENCIAS.pdf'), pagesize=A4, rightMargin=48, leftMargin=48, topMargin=45, bottomMargin=48).build(story, onFirstPage=footer, onLaterPages=footer)
     forms = []
     stages = ['Entrada e navegação', 'Catálogo e produto', 'Carrinho e checkout', 'Favoritos, perfil e persistência', 'Compra completa e acompanhamento']

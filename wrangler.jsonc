@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "sweetcup-pit2",
+  "name": "sweetcupcrazy",
   "main": "backend/entry.py",
   "compatibility_date": "2026-10-28",
   "compatibility_flags": [
@@ -23,11 +23,5 @@
     }
   ],
   "account_id": "d0360f247511c9fa480356445052e03e",
-  "workers_dev": true,
-  "routes": [
-    {
-      "pattern": "sweetcup.modern-believer.com",
-      "custom_domain": true
-    }
-  ]
+  "workers_dev": true
 }

@@ -3,7 +3,7 @@
 
 Loja acadêmica de cupcakes com interface mobile React/Vite, back-end Python e banco relacional. Evolução do protótipo do PIT I. Compras, pagamentos, avaliações de produtos e entregas são demonstrativos.
 
-Aplicação publicada: [sweetcup.modern-believer.com](https://sweetcup.modern-believer.com). Consulte também [publicação e verificação](docs/07_publicacao.md).
+Aplicação publicada: [sweetcupcrazy.maxwellgodhero.workers.dev](https://sweetcupcrazy.maxwellgodhero.workers.dev). Consulte também [publicação e verificação](docs/07_publicacao.md).
 
 ## Executar
 

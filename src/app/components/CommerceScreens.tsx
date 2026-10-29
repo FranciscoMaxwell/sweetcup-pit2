@@ -74,16 +74,7 @@ function OrderDetails({ order }: { order: Order }) {
   return <div className="card"><h2>Detalhes do pedido</h2>{order.items.map(item => <p className="order-line" key={item.product_id}><span>{item.quantity} × {item.product_name}</span><strong>{money(item.price_cents * item.quantity)}</strong></p>)}<p className="muted">Entrega: {order.address}</p><p className="muted">Pagamento simulado: {({ pix: 'Pix', card: 'Cartão', cash: 'Dinheiro' })[order.payment]}</p>{order.coupon && <p>Cupom: {order.coupon}</p>}<Totals quote={order} /></div>;
 }
 
-export function LiveProfileScreen({ state, navigate, mutate, busy, logout, openOrder }: Props & { logout: () => void; openOrder: (id: string) => void }) {
-  const [name, setName] = useState(state.user.name);
-  const [address, setAddress] = useState(state.user.address);
-  const [saved, setSaved] = useState(false);
-  return <section className="commerce-screen"><Header title="Meu perfil" navigate={navigate} /><div className="screen-body"><div className="profile-banner"><span>🧁</span><h2>{state.user.name}</h2><p>Cliente de demonstração</p><div className="profile-stats"><span><strong>{state.orders.length}</strong> pedidos</span><span><strong>{state.favorites.length}</strong> favoritos</span></div></div>
-    <form className="card" onSubmit={async e => { e.preventDefault(); setSaved(!!await mutate('/profile', 'PUT', { name, address })); }}><h2>Dados de demonstração</h2><label htmlFor="profile-name">Nome fictício</label><input id="profile-name" value={name} onChange={e => { setName(e.target.value); setSaved(false); }} minLength={2} maxLength={80} required /><label htmlFor="profile-address">Endereço fictício</label><textarea id="profile-address" value={address} onChange={e => { setAddress(e.target.value); setSaved(false); }} maxLength={200} /><button className="primary" disabled={busy}>Salvar perfil</button>{saved && <p role="status">Perfil salvo no banco de dados.</p>}</form>
-    <div className="card"><h2>Histórico</h2>{!state.orders.length ? <p className="muted">Seus pedidos aparecerão aqui.</p> : state.orders.map(o => <button key={o.id} className="history-row" onClick={() => openOrder(o.id)}><span>{o.id}<small>{dateTime(o.created_at)} · {STEPS[o.status]}</small></span><strong>{money(o.total_cents)}</strong></button>)}</div>
-    <button className="secondary" onClick={() => navigate('feedback')}>Avaliar a SweetCup</button><button className="text-btn" disabled={busy} onClick={logout}>Sair da sessão de demonstração</button><p className="muted">Ao sair, a próxima entrada cria outro cliente fictício. Esta demonstração não possui recuperação de conta.</p>
-  </div><BottomNav navigate={navigate} active="profile" cartCount={state.cart.items.reduce((n, i) => n + i.quantity, 0)} /></section>;
-}
+export { LiveProfileScreen } from './AccountScreen';
 
 export function FeedbackScreen({ navigate }: { navigate: Props['navigate'] }) {
   const [sent, setSent] = useState(false);
